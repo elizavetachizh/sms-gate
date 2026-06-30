@@ -10,7 +10,7 @@ import type {
 } from './types.ts'
 
 export const meApi = {
-  get: () => apiClient.get<UserRead>('/me/'),
+  get: () => apiClient.get<UserRead>('/auth/me/'),
 }
 
 export const providersApi = {
