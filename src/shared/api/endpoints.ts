@@ -7,6 +7,7 @@ import type {
   MailingTemplateRead,
   MailingTemplateUpdate,
   Page,
+  ProviderListParams,
   ProviderListResponse,
   ProviderRead,
   ProviderUpdate,
@@ -20,9 +21,13 @@ export const meApi = {
 }
 
 export const providersApi = {
-  list: () => apiClient.get<ProviderListResponse>('/providers/'),
-  getByCode: (code: string) => apiClient.get<ProviderRead>(`/providers/${code}`),
-  update: (code: string, body: ProviderUpdate) => apiClient.patch<ProviderRead>(`/providers/${code}`, body),
+  list: (params?: ProviderListParams) =>
+    apiClient.get<ProviderListResponse>('/providers/', {
+      enabled_only: params?.enabled_only ?? true,
+    }),
+
+  update: (code: string, body: ProviderUpdate) =>
+    apiClient.patch<ProviderRead>(`/providers/${code}`, body),
 }
 
 export const mailingsApi = {

@@ -12,6 +12,7 @@ import { MailingDetailPage } from '../pages/MailingDetailPage'
 import { TemplatesListPage } from '../pages/TemplatesListPage'
 import { CreateTemplatePage } from '../pages/CreateTemplatePage'
 import { EditTemplatePage } from '../pages/EditTemplatePage'
+import { ProvidersListPage } from '../pages/ProvidersListPage'
 import type { MailingStatus } from '@/shared/api'
 import { defaultMailingsSearch } from '../features/mailings/search'
 
@@ -77,6 +78,13 @@ const templateEditRoute = createRoute({
   component: EditTemplatePage,
 })
 
+const providersRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/providers',
+  validateSearch: () => ({}),
+  component: ProvidersListPage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   mailingsRoute,
@@ -85,6 +93,7 @@ const routeTree = rootRoute.addChildren([
   templatesRoute,
   templatesNewRoute,
   templateEditRoute,
+  providersRoute,
 ])
 
 export const router = createRouter({ routeTree })

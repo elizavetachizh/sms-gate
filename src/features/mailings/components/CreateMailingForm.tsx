@@ -12,10 +12,7 @@ import {
 } from '@/features/mailings/schemas/mailing.schema'
 import { useProviders } from '@/features/providers/hooks/useProviders'
 import { defaultMailingsSearch } from '@/features/mailings/search'
-import {
-  applyValidationErrors,
-  mapValidationErrors,
-} from '@/shared/api/map-validation-errors'
+import { applyCreateMailingValidationErrors } from '@/features/mailings/lib/mailing-api-errors'
 import { Button } from '@/shared/ui/button'
 import {
   Card,
@@ -91,7 +88,7 @@ export function CreateMailingForm() {
       })
     } catch (error) {
       if (isValidationError(error)) {
-        applyValidationErrors(mapValidationErrors(error.details), setError)
+        applyCreateMailingValidationErrors(error, setError)
         return
       }
 

@@ -5,6 +5,7 @@ import { useDeleteMailing } from '@/features/mailings/hooks/useDeleteMailing'
 import { useMailingsList } from '@/features/mailings/hooks/useMailingsList'
 import type { MailingRead, MailingStatus } from '@/shared/api'
 import { Button } from '@/shared/ui/button'
+import { Pagination } from '@/shared/ui/pagination'
 import {
   Select,
   SelectContent,
@@ -32,21 +33,17 @@ export function MailingsListPage() {
   const deleteMailing = useDeleteMailing()
 
   const statusFilter = status ?? 'all'
-  const total = data?.total ?? 0
-  const from = total === 0 ? 0 : offset + 1
-  const to = Math.min(offset + limit, total)
-  const hasPrev = offset > 0
-  const hasNext = data ? offset + limit < data.total : false
 
   function updateSearch(next: {
     status?: MailingStatus | undefined
     offset?: number
+    limit?: number
   }) {
     navigate({
       search: (prev) => ({
         ...prev,
         ...next,
-        offset: next.offset ?? 0,
+        offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
       }),
     })
   }
@@ -99,12 +96,6 @@ export function MailingsListPage() {
             </SelectContent>
           </Select>
         </div>
-
-        {data && (
-          <p className="text-sm text-muted-foreground">
-            Показано {from}–{to} из {total}
-          </p>
-        )}
       </div>
 
       {isLoading && (
@@ -130,34 +121,23 @@ export function MailingsListPage() {
       )}
 
       {!isLoading && !isError && data && (
-        <div className="rounded-lg border bg-card">
-          <MailingsTable
-            mailings={data.items}
-            onDelete={handleDelete}
-            isDeleting={deleteMailing.isPending}
-          />
-        </div>
-      )}
+        <>
+          <div className="rounded-lg border bg-card">
+            <MailingsTable
+              mailings={data.items}
+              onDelete={handleDelete}
+              isDeleting={deleteMailing.isPending}
+            />
+          </div>
 
-      {!isLoading && !isError && data && total > 0 && (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasPrev}
-            onClick={() => updateSearch({ offset: Math.max(0, offset - limit) })}
-          >
-            Назад
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasNext}
-            onClick={() => updateSearch({ offset: offset + limit })}
-          >
-            Далее
-          </Button>
-        </div>
+          <Pagination
+            total={data.total}
+            limit={limit}
+            offset={offset}
+            onOffsetChange={(nextOffset) => updateSearch({ offset: nextOffset })}
+            onLimitChange={(nextLimit) => updateSearch({ limit: nextLimit, offset: 0 })}
+          />
+        </>
       )}
     </div>
   )

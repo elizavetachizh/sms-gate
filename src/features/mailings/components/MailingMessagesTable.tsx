@@ -12,11 +12,15 @@ import { MessageStatusBadge } from './MessageStatusBadge'
 
 interface MailingMessagesTableProps {
   messages: MessageRead[]
+  embedded?: boolean
 }
 
-export function MailingMessagesTable({ messages }: MailingMessagesTableProps) {
+export function MailingMessagesTable({
+  messages,
+  embedded = false,
+}: MailingMessagesTableProps) {
   return (
-    <Table>
+    <Table className={embedded ? 'text-xs' : undefined}>
       <TableHeader>
         <TableRow>
           <TableHead>Номер</TableHead>
@@ -33,7 +37,10 @@ export function MailingMessagesTable({ messages }: MailingMessagesTableProps) {
               <TableCell className="whitespace-nowrap font-mono text-sm">
                 {message.msisdn}
               </TableCell>
-              <TableCell title={message.text} className="max-w-xs truncate">
+              <TableCell
+                title={message.text}
+                className={embedded ? 'max-w-[240px] truncate' : 'max-w-xs truncate'}
+              >
                 {message.text}
               </TableCell>
               <TableCell>

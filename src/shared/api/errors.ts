@@ -36,15 +36,25 @@ export interface ValidationDetail {
 
 export class ValidationError extends ApiError {
   readonly details: ValidationDetail[]
+  /** Business-rule 422 from HTTPException: `{ detail: "..." }` */
+  readonly detailMessage: string | null
 
-  constructor(details: ValidationDetail[]) {
-    super(422, { detail: details })
+  constructor(details: ValidationDetail[], detailMessage: string | null = null) {
+    super(422, { detail: detailMessage ?? details })
     this.name = 'ValidationError'
     this.details = details
+    this.detailMessage = detailMessage
   }
 
   static async fromResponse(response: Response): Promise<ValidationError> {
-    const body = (await response.json()) as { detail?: ValidationDetail[] }
+    const body = (await response.json()) as {
+      detail?: ValidationDetail[] | string
+    }
+
+    if (typeof body.detail === 'string') {
+      return new ValidationError([], body.detail)
+    }
+
     return new ValidationError(body.detail ?? [])
   }
 }
