@@ -5,6 +5,7 @@ import { useDeleteTemplate } from '@/features/templates/hooks/useDeleteTemplate'
 import { useTemplatesList } from '@/features/templates/hooks/useTemplatesList'
 import type { MailingTemplateRead } from '@/shared/api'
 import { Button } from '@/shared/ui/button'
+import { Pagination } from '@/shared/ui/pagination'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 const routeApi = getRouteApi('/templates')
@@ -17,17 +18,12 @@ export function TemplatesListPage() {
   const { data, isLoading, isError, error, refetch } = useTemplatesList(listParams)
   const deleteTemplate = useDeleteTemplate()
 
-  const total = data?.total ?? 0
-  const from = total === 0 ? 0 : offset + 1
-  const to = Math.min(offset + limit, total)
-  const hasPrev = offset > 0
-  const hasNext = data ? offset + limit < data.total : false
-
-  function updateOffset(nextOffset: number) {
+  function updatePagination(next: { offset?: number; limit?: number }) {
     navigate({
       search: (prev) => ({
         ...prev,
-        offset: nextOffset,
+        ...next,
+        offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
       }),
     })
   }
@@ -55,12 +51,6 @@ export function TemplatesListPage() {
         </Button>
       </div>
 
-      {data && (
-        <p className="text-sm text-muted-foreground">
-          Показано {from}–{to} из {total}
-        </p>
-      )}
-
       {isLoading && (
         <div className="space-y-3 rounded-lg border p-4">
           {Array.from({ length: 5 }).map((_, index) => (
@@ -84,34 +74,23 @@ export function TemplatesListPage() {
       )}
 
       {!isLoading && !isError && data && (
-        <div className="rounded-lg border bg-card">
-          <TemplatesTable
-            templates={data.items}
-            onDelete={handleDelete}
-            isDeleting={deleteTemplate.isPending}
-          />
-        </div>
-      )}
+        <>
+          <div className="rounded-lg border bg-card">
+            <TemplatesTable
+              templates={data.items}
+              onDelete={handleDelete}
+              isDeleting={deleteTemplate.isPending}
+            />
+          </div>
 
-      {!isLoading && !isError && data && total > 0 && (
-        <div className="flex items-center justify-end gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasPrev}
-            onClick={() => updateOffset(Math.max(0, offset - limit))}
-          >
-            Назад
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!hasNext}
-            onClick={() => updateOffset(offset + limit)}
-          >
-            Далее
-          </Button>
-        </div>
+          <Pagination
+            total={data.total}
+            limit={limit}
+            offset={offset}
+            onOffsetChange={(nextOffset) => updatePagination({ offset: nextOffset })}
+            onLimitChange={(nextLimit) => updatePagination({ limit: nextLimit, offset: 0 })}
+          />
+        </>
       )}
     </div>
   )

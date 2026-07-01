@@ -7,8 +7,9 @@ import {
 import { Link } from '@tanstack/react-router'
 import { PencilIcon, Trash2Icon } from 'lucide-react'
 import type { MailingTemplateRead } from '@/shared/api'
-import { formatDateTime } from '@/shared/lib/utils'
+import { cn, formatDateTime } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
+import { buttonVariants } from '@/shared/ui/button-variants'
 import {
   Table,
   TableBody,
@@ -54,15 +55,15 @@ const columns: ColumnDef<MailingTemplateRead>[] = [
 
       return (
         <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="icon" asChild>
-            <Link
-              to="/templates/$templateId/edit"
-              params={{ templateId: row.original.id }}
-              aria-label="Редактировать шаблон"
-            >
-              <PencilIcon />
-            </Link>
-          </Button>
+          <Link
+            from="/templates"
+            to="/templates/$templateId/edit"
+            params={{ templateId: row.original.id }}
+            aria-label="Редактировать шаблон"
+            className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+          >
+            <PencilIcon />
+          </Link>
           <Button
             variant="ghost"
             size="icon"

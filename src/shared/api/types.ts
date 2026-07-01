@@ -55,22 +55,23 @@ export interface Page<T> {
 }
 
 export interface ProviderListParams {
-  limit?: number
-  offset?: number
+  enabled_only?: boolean
 }
 
 export interface ProviderRead {
   code: string
   name: string
-  is_enabled: boolean,
-  max_batch_size: number,
+  is_enabled: boolean
+  max_batch_size: number
 }
+
 export interface ProviderListResponse {
   items: ProviderRead[]
 }
+
 export interface ProviderUpdate {
-  is_enabled?: boolean,
-  max_batch_size?: number,
+  name?: string
+  is_enabled?: boolean
 }
 
 export interface MailingListParams {
