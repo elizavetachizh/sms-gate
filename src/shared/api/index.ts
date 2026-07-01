@@ -11,7 +11,7 @@ export {
   ValidationError,
   type ValidationDetail,
 } from './errors.ts'
-export { mailingsApi, meApi, providersApi } from './endpoints.ts'
+export { mailingsApi, meApi, providersApi, templatesApi } from './endpoints.ts'
 export type {
   ApiDetailError,
   MailingCreate,
@@ -19,10 +19,17 @@ export type {
   MailingListParams,
   MailingRead,
   MailingStatus,
+  MailingTemplateCreate,
+  MailingTemplateRead,
+  MailingTemplateUpdate,
   MessageRead,
   MessageStatus,
   Page,
   ProviderListResponse,
+  ProviderRead,
+  ProviderListParams,
+  ProviderUpdate,
   SendMailingResponse,
+  TemplateListParams,
   UserRead,
 } from './types.ts'

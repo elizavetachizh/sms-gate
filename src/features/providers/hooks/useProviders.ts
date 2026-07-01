@@ -1,14 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { providersApi } from '@/shared/api'
+import { providersApi, type ProviderListParams } from '@/shared/api'
+import { providerKeys } from '../api/providers.keys'
 
-export const providerKeys = {
-  all: ['providers'] as const,
-  list: () => [...providerKeys.all, 'list'] as const,
-}
-
-export function useProviders() {
+export function useProviders(params: ProviderListParams) {
   return useQuery({
-    queryKey: providerKeys.list(),
+    queryKey: providerKeys.list(params),
     queryFn: () => providersApi.list(),
   })
 }

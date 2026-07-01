@@ -54,8 +54,23 @@ export interface Page<T> {
   items: T[]
 }
 
+export interface ProviderListParams {
+  limit?: number
+  offset?: number
+}
+
+export interface ProviderRead {
+  code: string
+  name: string
+  is_enabled: boolean,
+  max_batch_size: number,
+}
 export interface ProviderListResponse {
-  items: string[]
+  items: ProviderRead[]
+}
+export interface ProviderUpdate {
+  is_enabled?: boolean,
+  max_batch_size?: number,
 }
 
 export interface MailingListParams {
@@ -70,4 +85,29 @@ export interface SendMailingResponse {
 
 export interface ApiDetailError {
   detail: string
+}
+
+export interface MailingTemplateRead {
+  id: string
+  name: string
+  text: string
+  created_by: UserRead
+  updated_by: UserRead
+  created_at: string
+  updated_at: string
+}
+
+export interface MailingTemplateCreate {
+  name: string
+  text: string
+}
+
+export interface MailingTemplateUpdate {
+  name?: string
+  text?: string
+}
+
+export interface TemplateListParams {
+  limit?: number
+  offset?: number
 }

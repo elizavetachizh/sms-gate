@@ -9,7 +9,10 @@ import { Header } from './layout/Header'
 import { MailingsListPage } from '../pages/MailingsListPage'
 import { CreateMailingPage } from '../pages/CreateMailingPage'
 import { MailingDetailPage } from '../pages/MailingDetailPage'
-import type { MailingStatus } from '../shared/api'
+import { TemplatesListPage } from '../pages/TemplatesListPage'
+import { CreateTemplatePage } from '../pages/CreateTemplatePage'
+import { EditTemplatePage } from '../pages/EditTemplatePage'
+import type { MailingStatus } from '@/shared/api'
 import { defaultMailingsSearch } from '../features/mailings/search'
 
 const rootRoute = createRootRoute({
@@ -52,11 +55,36 @@ const mailingDetailRoute = createRoute({
   component: MailingDetailPage,
 })
 
+const templatesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/templates',
+  validateSearch: (search: Record<string, unknown>) => ({
+    limit: Number(search.limit ?? 20),
+    offset: Number(search.offset ?? 0),
+  }),
+  component: TemplatesListPage,
+})
+
+const templatesNewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/templates/new',
+  component: CreateTemplatePage,
+})
+
+const templateEditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/templates/$templateId/edit',
+  component: EditTemplatePage,
+})
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   mailingsRoute,
   mailingsNewRoute,
   mailingDetailRoute,
+  templatesRoute,
+  templatesNewRoute,
+  templateEditRoute,
 ])
 
 export const router = createRouter({ routeTree })

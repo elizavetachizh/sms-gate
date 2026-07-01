@@ -61,20 +61,28 @@ export function CreateMailingForm() {
 
   useEffect(() => {
     if (!providerCode && providersData?.items?.length) {
-      setValue('provider_code', providersData.items[0], { shouldValidate: true })
+      setValue('provider_code', providersData.items[0].code, { shouldValidate: true })
     }
   }, [providerCode, providersData?.items, setValue])
 
   async function onSubmit(values: MailingCreateFormValues) {
     setSubmitError(null)
 
+    const messages =
+      values.text_mode === 'same'
+        ? values.messages.map((message) => ({
+            msisdn: message.msisdn,
+            text: values.shared_text.trim(),
+          }))
+        : values.messages.map((message) => ({
+            msisdn: message.msisdn,
+            text: message.text.trim(),
+          }))
+
     try {
       const mailing = await createMailing.mutateAsync({
         provider_code: values.provider_code,
-        messages: values.messages.map((message) => ({
-          msisdn: message.msisdn,
-          text: message.text,
-        })),
+        messages,
       })
 
       navigate({
@@ -128,8 +136,8 @@ export function CreateMailingForm() {
                   </SelectTrigger>
                   <SelectContent>
                     {providers.map((provider) => (
-                      <SelectItem key={provider} value={provider}>
-                        {provider}
+                      <SelectItem key={provider.code} value={provider.code  }>
+                        {provider.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

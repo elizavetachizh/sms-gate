@@ -92,6 +92,10 @@ export class ApiClient {
     return this.request<T>(path, { ...options, method: 'POST', body })
   }
 
+  patch<T>(path: string, body?: unknown, options?: Omit<RequestOptions, 'body'>) {
+    return this.request<T>(path, { ...options, method: 'PATCH', body })
+  }
+
   delete(path: string, options?: Omit<RequestOptions, 'body'>) {
     return this.request<void>(path, { ...options, method: 'DELETE' })
   }

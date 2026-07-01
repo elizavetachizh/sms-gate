@@ -19,4 +19,11 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    files: ['**/features/**/components/*Table.tsx'],
+    rules: {
+      // TanStack Table returns unstable refs; safe here, React Compiler skips memoization.
+      'react-hooks/incompatible-library': 'off',
+    },
+  },
 ])

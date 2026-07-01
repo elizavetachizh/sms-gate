@@ -33,7 +33,7 @@ export function MailingMessagesTable({ messages }: MailingMessagesTableProps) {
               <TableCell className="whitespace-nowrap font-mono text-sm">
                 {message.msisdn}
               </TableCell>
-              <TableCell className="max-w-xs truncate" title={message.text}>
+              <TableCell title={message.text} className="max-w-xs truncate">
                 {message.text}
               </TableCell>
               <TableCell>
