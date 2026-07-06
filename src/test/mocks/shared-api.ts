@@ -26,6 +26,10 @@ export const templatesApi = {
   delete: vi.fn(),
 }
 
+export const statsApi = {
+  messagesByProvider: vi.fn(),
+}
+
 vi.mock('@/shared/api', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/shared/api')>()
 
@@ -34,6 +38,7 @@ vi.mock('@/shared/api', async (importOriginal) => {
     mailingsApi,
     meApi,
     providersApi,
+    statsApi,
     templatesApi,
   }
 })

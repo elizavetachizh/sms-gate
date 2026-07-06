@@ -17,6 +17,16 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
+export class BadRequestError extends ApiError {
+  readonly detail: string
+
+  constructor(detail: string) {
+    super(400, { detail })
+    this.name = 'BadRequestError'
+    this.detail = detail
+  }
+}
+
 export class NotFoundError extends ApiError {
   readonly detail: string
 
@@ -65,6 +75,10 @@ export function isApiError(error: unknown): error is ApiError {
 
 export function isUnauthorizedError(error: unknown): error is UnauthorizedError {
   return error instanceof UnauthorizedError
+}
+
+export function isBadRequestError(error: unknown): error is BadRequestError {
+  return error instanceof BadRequestError
 }
 
 export function isNotFoundError(error: unknown): error is NotFoundError {

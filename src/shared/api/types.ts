@@ -112,3 +112,27 @@ export interface TemplateListParams {
   limit?: number
   offset?: number
 }
+
+export interface MessagesByProviderStatsParams {
+  date_from: string
+  date_to: string
+  timezone: string
+  provider_code?: string[]
+  status?: MessageStatus[]
+  fill_gaps?: boolean
+}
+
+export interface MessagesByProviderStatsItem {
+  date: string
+  provider_code: string
+  provider_name: string | null
+  status: MessageStatus
+  count: number
+}
+
+export interface MessagesByProviderStatsResponse {
+  date_from: string
+  date_to: string
+  timezone: string
+  items: MessagesByProviderStatsItem[]
+}

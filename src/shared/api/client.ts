@@ -1,12 +1,24 @@
 import { getApiBaseUrl, getApiKey } from './config.ts'
 import {
   ApiError,
+  BadRequestError,
   NotFoundError,
   UnauthorizedError,
   ValidationError,
 } from './errors.ts'
 
-type QueryParams = Record<string, string | number | boolean | undefined | null>
+type QueryParamValue =
+  | string
+  | number
+  | boolean
+  | readonly (string | number | boolean)[]
+  | undefined
+  | null
+
+// Query params are represented as an object where each key is a query-string name.
+// Array values become repeated params: { status: ['queued', 'failed'] }
+// -> ?status=queued&status=failed
+type QueryParams = Record<string, QueryParamValue>
 
 export type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown
@@ -20,7 +32,13 @@ function buildUrl(baseUrl: string, path: string, params?: QueryParams): string {
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== null && value !== '') {
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          // append preserves repeated filters required by the API.
+          url.searchParams.append(key, String(item))
+        }
+      } else if (value !== undefined && value !== null && value !== '') {
+        // set is used for scalar params where a key should have a single value.
         url.searchParams.set(key, String(value))
       }
     }
@@ -59,6 +77,13 @@ export class ApiClient {
 
     if (response.status === 401) {
       throw new UnauthorizedError()
+    }
+
+    if (response.status === 400) {
+      const errorBody = (await response.json().catch(() => null)) as
+        | { detail?: string }
+        | null
+      throw new BadRequestError(errorBody?.detail ?? 'Bad request')
     }
 
     if (response.status === 404) {

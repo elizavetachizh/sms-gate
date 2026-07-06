@@ -48,6 +48,16 @@ export function Header() {
                 Провайдеры
               </Link>
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                to="/stats"
+                // search={defaultProvidersSearch}
+                className={cn('[&.active]:bg-accent')}
+                activeProps={{ className: 'active' }}
+              >
+                Статистика
+              </Link>
+            </Button>
           </nav>
         </div>
 

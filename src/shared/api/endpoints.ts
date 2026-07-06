@@ -6,6 +6,8 @@ import type {
   MailingTemplateCreate,
   MailingTemplateRead,
   MailingTemplateUpdate,
+  MessagesByProviderStatsParams,
+  MessagesByProviderStatsResponse,
   Page,
   ProviderListParams,
   ProviderListResponse,
@@ -69,4 +71,16 @@ export const templatesApi = {
     apiClient.patch<MailingTemplateRead>(`/templates/${templateId}`, body),
 
   delete: (templateId: string) => apiClient.delete(`/templates/${templateId}`),
+}
+
+export const statsApi = {
+  messagesByProvider: (params: MessagesByProviderStatsParams) =>
+    apiClient.get<MessagesByProviderStatsResponse>('/stats/messages-by-provider', {
+      date_from: params.date_from,
+      date_to: params.date_to,
+      provider_code: params.provider_code,
+      timezone: params.timezone,
+      status: params.status,
+      fill_gaps: params.fill_gaps,
+    }),
 }

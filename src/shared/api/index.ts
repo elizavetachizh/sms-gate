@@ -2,7 +2,9 @@ export { apiClient, ApiClient, type RequestOptions } from './client.ts'
 export { clearApiKey, getApiBaseUrl, getApiKey, setApiKey } from './config.ts'
 export {
   ApiError,
+  BadRequestError,
   isApiError,
+  isBadRequestError,
   isNotFoundError,
   isUnauthorizedError,
   isValidationError,
@@ -11,7 +13,7 @@ export {
   ValidationError,
   type ValidationDetail,
 } from './errors.ts'
-export { mailingsApi, meApi, providersApi, templatesApi } from './endpoints.ts'
+export { mailingsApi, meApi, providersApi, statsApi, templatesApi } from './endpoints.ts'
 export type {
   ApiDetailError,
   MailingCreate,
@@ -24,6 +26,9 @@ export type {
   MailingTemplateUpdate,
   MessageRead,
   MessageStatus,
+  MessagesByProviderStatsItem,
+  MessagesByProviderStatsParams,
+  MessagesByProviderStatsResponse,
   Page,
   ProviderListResponse,
   ProviderRead,
