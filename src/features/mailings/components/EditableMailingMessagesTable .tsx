@@ -9,16 +9,18 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { MessageStatusBadge } from "./MessageStatusBadge";
+import { Button } from "@/shared/ui/button";
+import { Trash2Icon } from "lucide-react";
 
-interface MailingMessagesTableProps {
+interface EditableMailingMessagesTableProps {
   messages: MessageRead[];
   embedded?: boolean;
 }
 
-export function MailingMessagesTable({
+export function EditableMailingMessagesTable({
   messages,
   embedded = false,
-}: MailingMessagesTableProps) {
+}: EditableMailingMessagesTableProps) {
   return (
     <Table className={embedded ? "text-xs" : undefined}>
       <TableHeader>
@@ -60,6 +62,19 @@ export function MailingMessagesTable({
                   "—"
                 )}
               </TableCell>
+              {message.status === "created" && (
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    // disabled={isDeleting}
+                    // onClick={() => onDelete(row.original)}
+                    aria-label="Удалить рассылку"
+                  >
+                    <Trash2Icon className="text-destructive" />
+                  </Button>
+                </TableCell>
+              )}
             </TableRow>
           ))
         ) : (
