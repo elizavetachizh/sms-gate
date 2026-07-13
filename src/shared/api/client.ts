@@ -2,6 +2,7 @@ import { getApiBaseUrl, getApiKey } from "./config.ts";
 import {
   ApiError,
   BadRequestError,
+  ConflictError,
   NotFoundError,
   UnauthorizedError,
   ValidationError,
@@ -94,6 +95,13 @@ export class ApiClient {
         detail?: string;
       } | null;
       throw new NotFoundError(errorBody?.detail ?? "Not found");
+    }
+
+    if (response.status === 409) {
+      const errorBody = (await response.json().catch(() => null)) as {
+        detail?: string;
+      } | null;
+      throw new ConflictError(errorBody?.detail ?? "Conflict");
     }
 
     if (response.status === 422) {

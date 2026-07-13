@@ -1,22 +1,32 @@
-import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
-import { PlusIcon } from 'lucide-react'
-import { TemplatesTable } from '@/features/templates/components/TemplatesTable'
-import { useDeleteTemplate } from '@/features/templates/hooks/useDeleteTemplate'
-import { useTemplatesList } from '@/features/templates/hooks/useTemplatesList'
-import type { MailingTemplateRead } from '@/shared/api'
-import { Button } from '@/shared/ui/button'
-import { Pagination } from '@/shared/ui/pagination'
-import { Skeleton } from '@/shared/ui/skeleton'
+import { useState } from "react";
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
+import { TemplatesTable } from "@/features/templates/components/TemplatesTable";
+import { useDeleteTemplate } from "@/features/templates/hooks/useDeleteTemplate";
+import { useTemplatesList } from "@/features/templates/hooks/useTemplatesList";
+import type { MailingTemplateRead } from "@/shared/api";
+import { getMutationErrorMessage } from "@/shared/lib/mutation-error";
+import { ActionAlert } from "@/shared/ui/action-alert";
+import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { Pagination } from "@/shared/ui/pagination";
+import { useActionAlert } from "@/shared/hooks/useActionAlert";
+import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
+import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
-const routeApi = getRouteApi('/templates')
+const routeApi = getRouteApi("/templates");
 
 export function TemplatesListPage() {
-  const navigate = useNavigate({ from: '/templates' })
-  const { limit, offset } = routeApi.useSearch()
-  const listParams = { limit, offset }
+  const navigate = useNavigate({ from: "/templates" });
+  const { limit, offset } = routeApi.useSearch();
+  const listParams = { limit, offset };
 
-  const { data, isLoading, isError, error, refetch } = useTemplatesList(listParams)
-  const deleteTemplate = useDeleteTemplate()
+  const { data, isLoading, isError, error, refetch } =
+    useTemplatesList(listParams);
+  const deleteTemplate = useDeleteTemplate();
+  const [templateToDelete, setTemplateToDelete] =
+    useState<MailingTemplateRead | null>(null);
+  const { actionAlert, setActionAlert } = useActionAlert();
 
   function updatePagination(next: { offset?: number; limit?: number }) {
     navigate({
@@ -25,13 +35,31 @@ export function TemplatesListPage() {
         ...next,
         offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
       }),
-    })
+    });
   }
 
   function handleDelete(template: MailingTemplateRead) {
-    const confirmed = window.confirm(`Удалить шаблон «${template.name}»?`)
-    if (!confirmed) return
-    deleteTemplate.mutate(template.id)
+    setTemplateToDelete(template);
+  }
+
+  function confirmDeleteTemplate() {
+    if (!templateToDelete) return;
+
+    deleteTemplate.mutate(templateToDelete.id, {
+      onSuccess: () => {
+        setTemplateToDelete(null);
+        setActionAlert({ action: "deleted" });
+      },
+      onError: (deleteError) => {
+        setActionAlert({
+          action: "error",
+          message: getMutationErrorMessage(
+            deleteError,
+            "Не удалось удалить шаблон",
+          ),
+        });
+      },
+    });
   }
 
   return (
@@ -51,26 +79,22 @@ export function TemplatesListPage() {
         </Button>
       </div>
 
-      {isLoading && (
-        <div className="space-y-3 rounded-lg border p-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
-          ))}
-        </div>
+      {actionAlert && (
+        <ActionAlert
+          action={actionAlert.action}
+          entity="template"
+          message={actionAlert.message}
+          onDismiss={() => setActionAlert(null)}
+        />
       )}
+      {isLoading && <QueryLoadingPanel preset="table-rows" rows={5} />}
 
       {isError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <p className="text-sm font-medium text-destructive">
-            Не удалось загрузить шаблоны
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-          </p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => refetch()}>
-            Повторить
-          </Button>
-        </div>
+        <QueryErrorPanel
+          title="Не удалось загрушить шаблоны"
+          error={error}
+          onRetry={() => refetch()}
+        />
       )}
 
       {!isLoading && !isError && data && (
@@ -87,11 +111,41 @@ export function TemplatesListPage() {
             total={data.total}
             limit={limit}
             offset={offset}
-            onOffsetChange={(nextOffset) => updatePagination({ offset: nextOffset })}
-            onLimitChange={(nextLimit) => updatePagination({ limit: nextLimit, offset: 0 })}
+            onOffsetChange={(nextOffset) =>
+              updatePagination({ offset: nextOffset })
+            }
+            onLimitChange={(nextLimit) =>
+              updatePagination({ limit: nextLimit, offset: 0 })
+            }
           />
         </>
       )}
+
+      <ConfirmDialog
+        open={Boolean(templateToDelete)}
+        onOpenChange={(open) => {
+          if (!deleteTemplate.isPending && !open) {
+            setTemplateToDelete(null);
+          }
+        }}
+        title="Удалить шаблон?"
+        description={
+          templateToDelete ? (
+            <>
+              Шаблон «
+              <span className="font-medium text-foreground">
+                {templateToDelete.name}
+              </span>
+              » будет удалён. Это действие нельзя будет отменить.
+            </>
+          ) : (
+            "Это действие нельзя будет отменить."
+          )
+        }
+        confirmLabel="Удалить"
+        onConfirm={confirmDeleteTemplate}
+        isPending={deleteTemplate.isPending}
+      />
     </div>
-  )
+  );
 }

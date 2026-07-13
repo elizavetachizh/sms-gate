@@ -1,27 +1,29 @@
-import { useState } from 'react'
-import { ProviderCard } from '@/features/providers/components/ProviderCard'
-import { useProviders } from '@/features/providers/hooks/useProviders'
-import { useUpdateProvider } from '@/features/providers/hooks/useUpdateProvider'
-import { Button } from '@/shared/ui/button'
-import { Skeleton } from '@/shared/ui/skeleton'
+import { useState } from "react";
+import { ProviderCard } from "@/features/providers/components/ProviderCard";
+import { useProviders } from "@/features/providers/hooks/useProviders";
+import { useUpdateProvider } from "@/features/providers/hooks/useUpdateProvider";
+import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
+import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
 export function ProvidersListPage() {
-  const { data, isLoading, isError, error, refetch } = useProviders({ enabled_only: false })
-  const updateProvider = useUpdateProvider()
-  const [updatingCode, setUpdatingCode] = useState<string | null>(null)
+  const { data, isLoading, isError, error, refetch } = useProviders({
+    enabled_only: false,
+  });
+  const updateProvider = useUpdateProvider();
+  const [updatingCode, setUpdatingCode] = useState<string | null>(null);
 
-  const providers = data?.items ?? []
+  const providers = data?.items ?? [];
 
   async function handleUpdate(
     ...args: Parameters<typeof updateProvider.mutateAsync>
   ) {
-    const [{ code }] = args
-    setUpdatingCode(code)
+    const [{ code }] = args;
+    setUpdatingCode(code);
 
     try {
-      return await updateProvider.mutateAsync(...args)
+      return await updateProvider.mutateAsync(...args);
     } finally {
-      setUpdatingCode(null)
+      setUpdatingCode(null);
     }
   }
 
@@ -31,30 +33,19 @@ export function ProvidersListPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Провайдеры</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Каталог SMS-шлюзов. Выключение провайдера не отменяет уже созданные
-          рассылки и не блокирует отправку сообщений, уже поставленных в очередь.
+          рассылки и не блокирует отправку сообщений, уже поставленных в
+          очередь.
         </p>
       </div>
 
-      {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton key={index} className="h-64 w-full rounded-xl" />
-          ))}
-        </div>
-      )}
+      {isLoading && <QueryLoadingPanel preset="cards-grid" cards={3} />}
 
       {isError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <p className="text-sm font-medium text-destructive">
-            Не удалось загрузить провайдеров
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-          </p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => refetch()}>
-            Повторить
-          </Button>
-        </div>
+        <QueryErrorPanel
+          title="Не удалось загрузить провайдеров"
+          error={error}
+          onRetry={() => refetch()}
+        />
       )}
 
       {!isLoading && !isError && providers.length === 0 && (
@@ -77,5 +68,5 @@ export function ProvidersListPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
@@ -7,15 +8,21 @@ import {
   SendIcon,
   Trash2Icon,
 } from "lucide-react";
+import { EditableMailingMessagesTable } from "@/features/mailings/components/EditableMailingMessagesTable";
+import { MailingSettingsCard } from "@/features/mailings/components/MailingSettingsCard";
 import { MailingStatusBadge } from "@/features/mailings/components/MailingStatusBadge";
 import { useDeleteMailing } from "@/features/mailings/hooks/useDeleteMailing";
 import { useMailingDetail } from "@/features/mailings/hooks/useMailingDetail";
 import { useSendMailing } from "@/features/mailings/hooks/useSendMailing";
 import { hasPendingMessages } from "@/features/mailings/lib/message-status";
 import { defaultMailingsSearch } from "@/features/mailings/search";
+import { CreateMessageDialog } from "@/features/messages/components/CreateMessageDialog";
 import { isNotFoundError } from "@/shared/api";
+import { getMutationErrorMessage } from "@/shared/lib/mutation-error";
 import { formatDateTime, shortId } from "@/shared/lib/utils";
+import { ActionAlert } from "@/shared/ui/action-alert";
 import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import {
   Card,
   CardContent,
@@ -23,13 +30,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/ui/card";
-import { Skeleton } from "@/shared/ui/skeleton";
-import { EditableMailingMessagesTable } from "@/features/mailings/components/EditableMailingMessagesTable ";
+import { useActionAlert } from "@/shared/hooks/useActionAlert";
+import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
 export function MailingDetailPage() {
   const { mailingId } = useParams({ from: "/mailings/$mailingId" });
   const navigate = useNavigate();
-
+  const [isCreateMessageOpen, setIsCreateMessageOpen] = useState(false);
+  const [isDeleteMailingOpen, setIsDeleteMailingOpen] = useState(false);
+  const { actionAlert, setActionAlert } = useActionAlert();
   const {
     data: mailing,
     isLoading,
@@ -56,29 +65,30 @@ export function MailingDetailPage() {
     }
   }
 
-  function handleDelete() {
+  function confirmDeleteMailing() {
     if (!mailing) return;
-
-    const confirmed = window.confirm(
-      `Удалить рассылку ${shortId(mailing.id)}… (${mailing.messages.length} SMS)?`,
-    );
-    if (!confirmed) return;
 
     deleteMailing.mutate(mailing.id, {
       onSuccess: () => {
+        setIsDeleteMailingOpen(false);
         navigate({ to: "/mailings", search: defaultMailingsSearch });
+      },
+      onError: (deleteError) => {
+        setIsDeleteMailingOpen(false);
+        setActionAlert({
+          action: "error",
+          entity: "mailing",
+          message: getMutationErrorMessage(
+            deleteError,
+            "Не удалось удалить рассылку",
+          ),
+        });
       },
     });
   }
 
   if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-40 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
+    return <QueryLoadingPanel preset="detail" />;
   }
 
   if (isError) {
@@ -172,24 +182,39 @@ export function MailingDetailPage() {
             </Button>
           )}
 
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={deleteMailing.isPending}
-            onClick={handleDelete}
-          >
-            <Trash2Icon className="text-destructive" />
-            Удалить
-          </Button>
+          {canSend && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={deleteMailing.isPending}
+              onClick={() => setIsDeleteMailingOpen(true)}
+            >
+              <Trash2Icon className="text-destructive" />
+              Удалить
+            </Button>
+          )}
         </div>
       </div>
 
+      {actionAlert && (
+        <ActionAlert
+          action={actionAlert.action}
+          entity={actionAlert.entity ?? "message"}
+          message={actionAlert.message}
+          onDismiss={() => setActionAlert(null)}
+        />
+      )}
+
       {sendMailing.isError && (
-        <p className="text-sm text-destructive">
-          {sendMailing.error instanceof Error
-            ? sendMailing.error.message
-            : "Не удалось отправить рассылку"}
-        </p>
+        <ActionAlert
+          action="error"
+          entity="mailing"
+          message={
+            sendMailing.error instanceof Error
+              ? sendMailing.error.message
+              : "Не удалось отправить рассылку"
+          }
+        />
       )}
 
       <Card>
@@ -226,27 +251,88 @@ export function MailingDetailPage() {
           </dl>
         </CardContent>
       </Card>
-      <div className="flex justify-end mb-4">
-        <Button asChild>
-          <Link to="/templates/new">
-            <PlusIcon />
-            Создать
-          </Link>
-        </Button>
-      </div>
+
+      {canSend && (
+        <MailingSettingsCard
+          mailingId={mailingId}
+          messageCount={mailing.messages.length}
+          messages={mailing.messages}
+          onUpdated={() =>
+            setActionAlert({ action: "updated", entity: "mailing" })
+          }
+          onError={(message) =>
+            setActionAlert({ action: "error", entity: "mailing", message })
+          }
+        />
+      )}
+
       <Card>
-        <CardHeader>
-          <CardTitle>Сообщения</CardTitle>
-          <CardDescription>
-            {canSend
-              ? "Рассылка ещё не отправлена — нажмите «Отправить» для постановки в очередь."
-              : "Статусы обновляются автоматически после отправки."}
-          </CardDescription>
+        <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+          <div className="space-y-1.5">
+            <CardTitle>Сообщения</CardTitle>
+            <CardDescription>
+              {canSend
+                ? "Рассылка ещё не отправлена — нажмите «Отправить» для постановки в очередь."
+                : "Статусы обновляются автоматически после отправки."}
+            </CardDescription>
+          </div>
+          {canSend && (
+            <Button size="sm" onClick={() => setIsCreateMessageOpen(true)}>
+              <PlusIcon />
+              Создать
+            </Button>
+          )}
         </CardHeader>
         <CardContent className="p-0">
-          <EditableMailingMessagesTable messages={mailing.messages} />
+          <EditableMailingMessagesTable
+            mailingId={mailingId}
+            messages={mailing.messages}
+            canEdit={canSend}
+            onMessageDeleted={() =>
+              setActionAlert({ action: "deleted", entity: "message" })
+            }
+            onMessageUpdated={() =>
+              setActionAlert({ action: "updated", entity: "message" })
+            }
+            onDeleteError={(message) =>
+              setActionAlert({ action: "error", entity: "message", message })
+            }
+          />
         </CardContent>
       </Card>
+
+      <CreateMessageDialog
+        mailingId={mailingId}
+        open={isCreateMessageOpen}
+        onOpenChange={setIsCreateMessageOpen}
+        onSuccess={() =>
+          setActionAlert({ action: "created", entity: "message" })
+        }
+      />
+
+      <ConfirmDialog
+        open={isDeleteMailingOpen}
+        onOpenChange={(open) => {
+          if (!deleteMailing.isPending) {
+            setIsDeleteMailingOpen(open);
+          }
+        }}
+        title="Удалить рассылку?"
+        description={
+          <>
+            Рассылка{" "}
+            <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+              {shortId(mailing.id)}
+            </code>{" "}
+            и все {mailing.messages.length}{" "}
+            {mailing.messages.length === 1 ? "сообщение" : "сообщений"} будут
+            удалены. Это действие нельзя будет отменить.
+          </>
+        }
+        confirmLabel="Удалить"
+        onConfirm={confirmDeleteMailing}
+        isPending={deleteMailing.isPending}
+      />
     </div>
   );
 }

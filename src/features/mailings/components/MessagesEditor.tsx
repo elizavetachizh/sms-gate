@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form'
+import { Controller, useFieldArray, useFormContext, useWatch } from 'react-hook-form'
 import { PlusIcon, Trash2Icon } from 'lucide-react'
 import { TemplatePicker } from '@/features/templates/components/TemplatePicker'
 import { useTemplatesPicker } from '@/features/templates/hooks/useTemplatesPicker'
@@ -10,9 +10,10 @@ import {
   type MailingTextMode,
 } from '@/features/mailings/schemas/mailing.schema'
 import type { MailingTemplateRead } from '@/shared/api'
+import { BELARUS_PHONE_FORMAT } from '@/shared/lib/belarus-phone'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
-import { Input } from '@/shared/ui/input'
+import { PhoneInput } from '@/shared/ui/phone-input'
 import { Label } from '@/shared/ui/label'
 import { Textarea } from '@/shared/ui/textarea'
 
@@ -184,7 +185,7 @@ function SameTextEditor() {
           <div>
             <h3 className="text-sm font-medium">Получатели</h3>
             <p className="text-sm text-muted-foreground">
-              Номер: 9–16 символов. Минимум один получатель.
+              Формат: {BELARUS_PHONE_FORMAT}. Минимум один получатель.
             </p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={addRecipient}>
@@ -206,19 +207,21 @@ function SameTextEditor() {
                 key={field.id}
                 className="flex items-start gap-3 rounded-lg border bg-background p-4"
               >
-                <div className="min-w-0 flex-1 space-y-2">
-                  <Label htmlFor={`messages.${index}.msisdn`}>
-                    Номер #{index + 1}
-                  </Label>
-                  <Input
-                    id={`messages.${index}.msisdn`}
-                    placeholder="+375 29 123-45-67"
-                    aria-invalid={Boolean(msisdnError)}
-                    {...register(`messages.${index}.msisdn`)}
+                <div className="min-w-0 flex-1">
+                  <Controller
+                    control={control}
+                    name={`messages.${index}.msisdn`}
+                    render={({ field }) => (
+                      <PhoneInput
+                        id={`messages.${index}.msisdn`}
+                        label={`Номер #${index + 1}`}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        error={msisdnError}
+                      />
+                    )}
                   />
-                  {msisdnError && (
-                    <p className="text-sm text-destructive">{msisdnError}</p>
-                  )}
                 </div>
 
                 {fields.length > 1 && (
@@ -244,7 +247,6 @@ function SameTextEditor() {
 
 function DifferentTextEditor() {
   const {
-    register,
     control,
     formState: { errors },
   } = useFormContext<MailingCreateFormValues>()
@@ -264,7 +266,8 @@ function DifferentTextEditor() {
         <div>
           <h3 className="text-sm font-medium">Сообщения</h3>
           <p className="text-sm text-muted-foreground">
-            Минимум одно SMS. Номер: 9–16 символов. Текст: до {SMS_SEGMENT_LENGTH} символов.
+            Минимум одно SMS. Номер: {BELARUS_PHONE_FORMAT}. Текст: до {SMS_SEGMENT_LENGTH}{' '}
+            символов.
           </p>
         </div>
         <Button
@@ -307,18 +310,20 @@ function DifferentTextEditor() {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor={`messages.${index}.msisdn`}>Номер телефона</Label>
-                  <Input
-                    id={`messages.${index}.msisdn`}
-                    placeholder="+375 29 123-45-67"
-                    aria-invalid={Boolean(msisdnError)}
-                    {...register(`messages.${index}.msisdn`)}
-                  />
-                  {msisdnError && (
-                    <p className="text-sm text-destructive">{msisdnError}</p>
+                <Controller
+                  control={control}
+                  name={`messages.${index}.msisdn`}
+                  render={({ field }) => (
+                    <PhoneInput
+                      id={`messages.${index}.msisdn`}
+                      label="Номер телефона"
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      error={msisdnError}
+                    />
                   )}
-                </div>
+                />
 
                 <MessageTextField index={index} />
               </div>

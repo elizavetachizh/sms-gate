@@ -1,43 +1,55 @@
-import { getRouteApi, Link, useNavigate } from '@tanstack/react-router'
-import { PlusIcon } from 'lucide-react'
-import { MailingsTable } from '@/features/mailings/components/MailingsTable'
-import { useDeleteMailing } from '@/features/mailings/hooks/useDeleteMailing'
-import { useMailingsList } from '@/features/mailings/hooks/useMailingsList'
-import type { MailingRead, MailingStatus } from '@/shared/api'
-import { Button } from '@/shared/ui/button'
-import { Pagination } from '@/shared/ui/pagination'
+import { useState } from "react";
+import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { PlusIcon } from "lucide-react";
+import { MailingsTable } from "@/features/mailings/components/MailingsTable";
+import { useDeleteMailing } from "@/features/mailings/hooks/useDeleteMailing";
+import { useMailingsList } from "@/features/mailings/hooks/useMailingsList";
+import type { MailingRead, MailingStatus } from "@/shared/api";
+import { getMutationErrorMessage } from "@/shared/lib/mutation-error";
+import { shortId } from "@/shared/lib/utils";
+import { ActionAlert } from "@/shared/ui/action-alert";
+import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
+import { Pagination } from "@/shared/ui/pagination";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/ui/select'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/select";
+import { useActionAlert } from "@/shared/hooks/useActionAlert";
+import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
+import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
-const routeApi = getRouteApi('/mailings')
+const routeApi = getRouteApi("/mailings");
 
-const STATUS_OPTIONS: { value: 'all' | MailingStatus; label: string }[] = [
-  { value: 'all', label: 'Все статусы' },
-  { value: 'created', label: 'Создана' },
-  { value: 'queued', label: 'В очереди' },
-  { value: 'submitted', label: 'Отправлена' },
-]
+const STATUS_OPTIONS: { value: "all" | MailingStatus; label: string }[] = [
+  { value: "all", label: "Все статусы" },
+  { value: "created", label: "Создана" },
+  { value: "queued", label: "В очереди" },
+  { value: "submitted", label: "Отправлена" },
+];
 
 export function MailingsListPage() {
-  const navigate = useNavigate({ from: '/mailings' })
-  const { status, limit, offset } = routeApi.useSearch()
-  const listParams = { status, limit, offset }
+  const navigate = useNavigate({ from: "/mailings" });
+  const { status, limit, offset } = routeApi.useSearch();
+  const listParams = { status, limit, offset };
 
-  const { data, isLoading, isError, error, refetch } = useMailingsList(listParams)
-  const deleteMailing = useDeleteMailing()
+  const { data, isLoading, isError, error, refetch } =
+    useMailingsList(listParams);
+  const deleteMailing = useDeleteMailing();
+  const [mailingToDelete, setMailingToDelete] = useState<MailingRead | null>(
+    null,
+  );
+  const { actionAlert, setActionAlert } = useActionAlert();
 
-  const statusFilter = status ?? 'all'
+  const statusFilter = status ?? "all";
 
   function updateSearch(next: {
-    status?: MailingStatus | undefined
-    offset?: number
-    limit?: number
+    status?: MailingStatus | undefined;
+    offset?: number;
+    limit?: number;
   }) {
     navigate({
       search: (prev) => ({
@@ -45,22 +57,38 @@ export function MailingsListPage() {
         ...next,
         offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
       }),
-    })
+    });
   }
 
   function handleStatusChange(value: string) {
     updateSearch({
-      status: value === 'all' ? undefined : (value as MailingStatus),
+      status: value === "all" ? undefined : (value as MailingStatus),
       offset: 0,
-    })
+    });
   }
 
   function handleDelete(mailing: MailingRead) {
-    const confirmed = window.confirm(
-      `Удалить рассылку ${mailing.id.slice(0, 8)}… (${mailing.messages.length} SMS)?`,
-    )
-    if (!confirmed) return
-    deleteMailing.mutate(mailing.id)
+    setMailingToDelete(mailing);
+  }
+
+  function confirmDeleteMailing() {
+    if (!mailingToDelete) return;
+
+    deleteMailing.mutate(mailingToDelete.id, {
+      onSuccess: () => {
+        setMailingToDelete(null);
+        setActionAlert({ action: "deleted" });
+      },
+      onError: (deleteError) => {
+        setActionAlert({
+          action: "error",
+          message: getMutationErrorMessage(
+            deleteError,
+            "Не удалось удалить рассылку",
+          ),
+        });
+      },
+    });
   }
 
   return (
@@ -98,26 +126,23 @@ export function MailingsListPage() {
         </div>
       </div>
 
-      {isLoading && (
-        <div className="space-y-3 rounded-lg border p-4">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
-          ))}
-        </div>
+      {actionAlert && (
+        <ActionAlert
+          action={actionAlert.action}
+          entity="mailing"
+          message={actionAlert.message}
+          onDismiss={() => setActionAlert(null)}
+        />
       )}
 
+      {isLoading && <QueryLoadingPanel preset="table-rows" rows={5} />}
+
       {isError && (
-        <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
-          <p className="text-sm font-medium text-destructive">
-            Не удалось загрузить рассылки
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {error instanceof Error ? error.message : 'Неизвестная ошибка'}
-          </p>
-          <Button variant="outline" size="sm" className="mt-3" onClick={() => refetch()}>
-            Повторить
-          </Button>
-        </div>
+        <QueryErrorPanel
+          title="Не удалось загрузить рассылки"
+          error={error}
+          onRetry={() => refetch()}
+        />
       )}
 
       {!isLoading && !isError && data && (
@@ -134,11 +159,45 @@ export function MailingsListPage() {
             total={data.total}
             limit={limit}
             offset={offset}
-            onOffsetChange={(nextOffset) => updateSearch({ offset: nextOffset })}
-            onLimitChange={(nextLimit) => updateSearch({ limit: nextLimit, offset: 0 })}
+            onOffsetChange={(nextOffset) =>
+              updateSearch({ offset: nextOffset })
+            }
+            onLimitChange={(nextLimit) =>
+              updateSearch({ limit: nextLimit, offset: 0 })
+            }
           />
         </>
       )}
+
+      <ConfirmDialog
+        open={Boolean(mailingToDelete)}
+        onOpenChange={(open) => {
+          if (!deleteMailing.isPending && !open) {
+            setMailingToDelete(null);
+          }
+        }}
+        title="Удалить рассылку?"
+        description={
+          mailingToDelete ? (
+            <>
+              Рассылка{" "}
+              <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
+                {shortId(mailingToDelete.id)}
+              </code>{" "}
+              и {mailingToDelete.messages.length}{" "}
+              {mailingToDelete.messages.length === 1
+                ? "сообщение"
+                : "сообщений"}{" "}
+              будут удалены. Это действие нельзя будет отменить.
+            </>
+          ) : (
+            "Это действие нельзя будет отменить."
+          )
+        }
+        confirmLabel="Удалить"
+        onConfirm={confirmDeleteMailing}
+        isPending={deleteMailing.isPending}
+      />
     </div>
-  )
+  );
 }

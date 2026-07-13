@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ApiClient } from './client'
-import { BadRequestError } from './errors'
+import { BadRequestError, ConflictError } from './errors'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -61,6 +61,33 @@ describe('ApiClient', () => {
     await expect(request).rejects.toMatchObject({
       name: 'BadRequestError',
       detail: 'Unknown timezone: Test/Zone',
+    })
+  })
+
+  it('throws ConflictError with parsed detail for 409 responses', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            detail: 'Mailing can be updated only in created status',
+          }),
+          {
+            status: 409,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        ),
+      ),
+    )
+
+    const client = new ApiClient('/api/v1', () => 'test-key')
+
+    const request = client.delete('/mailings/test-id')
+
+    await expect(request).rejects.toBeInstanceOf(ConflictError)
+    await expect(request).rejects.toMatchObject({
+      name: 'ConflictError',
+      detail: 'Mailing can be updated only in created status',
     })
   })
 })

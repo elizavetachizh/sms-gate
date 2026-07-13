@@ -41,15 +41,6 @@ export interface MailingCreateMessage {
   text: string;
   send_on?: string | null;
 }
-export interface MessageRead {
-  id: string;
-  msisdn: string;
-  text: string;
-  send_on: string | null;
-  external_id: string | null;
-  status: MessageStatus;
-  batch_id: string | null;
-}
 
 export interface MailingCreate {
   provider_code: string;
@@ -57,7 +48,7 @@ export interface MailingCreate {
 }
 
 export interface MailingUpdate {
-  provider_code: string;
+  provider_code?: string;
   messages?: MailingCreateMessage[];
 }
 
