@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useTemplatesPicker } from '@/features/templates/hooks/useTemplatesPicker'
 import type { MailingTemplateRead } from '@/shared/api'
 
@@ -12,12 +12,19 @@ export function useMailingTemplatePicker(onApplyText: (text: string) => void) {
 
   const templates = templatesData?.items ?? []
 
-  function applyTemplate(template: MailingTemplateRead | null) {
-    setSelectedTemplateId(template?.id ?? null)
-    if (template) {
-      onApplyText(template.text)
-    }
-  }
+  const applyTemplate = useCallback(
+    (template: MailingTemplateRead | null) => {
+      setSelectedTemplateId(template?.id ?? null)
+      if (template) {
+        onApplyText(template.text)
+      }
+    },
+    [onApplyText],
+  )
+
+  const resetSelection = useCallback(() => {
+    setSelectedTemplateId(null)
+  }, [])
 
   return {
     templates,
@@ -25,5 +32,6 @@ export function useMailingTemplatePicker(onApplyText: (text: string) => void) {
     isError,
     selectedTemplateId,
     applyTemplate,
+    resetSelection,
   }
 }

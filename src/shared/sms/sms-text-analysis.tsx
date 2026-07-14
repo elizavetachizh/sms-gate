@@ -2,8 +2,8 @@ import { AlertTriangleIcon } from "lucide-react";
 import {
   formatSmsAnalysisSummary,
   getSmsAnalysisWarnings,
-} from "@/features/services/lib/format-sms-analysis";
-import { useSmsTextAnalysis } from "@/features/services/hooks/useSmsTextAnalysis";
+} from "@/shared/sms/format-sms-analysis";
+import { useSmsTextAnalysis } from "@/shared/sms/useSmsTextAnalysis";
 import { cn } from "@/shared/lib/utils";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 
@@ -46,7 +46,7 @@ export function SmsTextAnalysisSummary({
     <span
       className={cn(
         "text-xs tabular-nums",
-        text.length > data.capacity
+        data.characters > data.capacity
           ? "font-medium text-destructive"
           : "text-muted-foreground",
       )}

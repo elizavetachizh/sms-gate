@@ -1,3 +1,4 @@
+// TODO: remove once MailingRead includes provider_code from the API.
 const KEY_PREFIX = 'mailing-provider:'
 
 export function getStoredMailingProviderCode(mailingId: string): string | null {

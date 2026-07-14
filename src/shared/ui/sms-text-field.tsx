@@ -2,7 +2,7 @@ import { forwardRef, type ReactNode } from "react";
 import {
   SmsTextAnalysisSummary,
   SmsTextAnalysisWarnings,
-} from "@/features/services/components/SmsTextAnalysisPanel";
+} from "@/shared/sms";
 import { cn } from "@/shared/lib/utils";
 import { Label } from "@/shared/ui/label";
 import { Textarea } from "@/shared/ui/textarea";

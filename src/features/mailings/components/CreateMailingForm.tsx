@@ -34,6 +34,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { buildMailingMessagesPayload } from "../lib/build-mailing-messages-payload";
 
 export function CreateMailingForm() {
   const navigate = useNavigate();
@@ -73,17 +74,7 @@ export function CreateMailingForm() {
   async function onSubmit(values: MailingCreateFormValues) {
     setSubmitError(null);
 
-    const messages =
-      values.text_mode === "same"
-        ? values.messages.map((message) => ({
-            msisdn: message.msisdn,
-            text: values.shared_text.trim(),
-          }))
-        : values.messages.map((message) => ({
-            msisdn: message.msisdn,
-            text: message.text.trim(),
-          }));
-
+    const messages = buildMailingMessagesPayload(values);
     try {
       const mailing = await createMailing.mutateAsync({
         provider_code: values.provider_code,

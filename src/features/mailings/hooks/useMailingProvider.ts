@@ -1,3 +1,4 @@
+// TODO: replace sessionStorage fallback with MailingRead.provider_code once the API returns it.
 import { useEffect, useState } from "react";
 import {
   getStoredMailingProviderCode,
@@ -27,6 +28,7 @@ export function useMailingProvider(mailingId: string) {
     (provider) => provider.code === savedProviderCode,
   );
 
+  // TODO: initialize from mailing.provider_code when available; sessionStorage is a temporary bridge.
   useEffect(() => {
     if (!providers.length) return;
 
