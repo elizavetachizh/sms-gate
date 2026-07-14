@@ -77,8 +77,7 @@ export function EditableMailingMessagesTable({
   );
 
   const validSelectedIds = useMemo(
-    () =>
-      new Set([...selectedIds].filter((id) => messageIds.has(id))),
+    () => new Set([...selectedIds].filter((id) => messageIds.has(id))),
     [messageIds, selectedIds],
   );
 

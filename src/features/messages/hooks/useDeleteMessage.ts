@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { messagesApi, type MailingRead } from '@/shared/api'
-import { mailingKeys } from '@/features/mailings/api/mailings.keys'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { messagesApi, type MailingRead } from "@/shared/api";
+import { mailingKeys } from "@/features/mailings/api/mailings.keys";
 
 export function useDeleteMessage(mailingId: string) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (messageId: string) => messagesApi.delete(mailingId, messageId),
@@ -19,7 +19,7 @@ export function useDeleteMessage(mailingId: string) {
                 ),
               }
             : mailing,
-      )
+      );
     },
-  })
+  });
 }
