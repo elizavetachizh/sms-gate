@@ -1,28 +1,28 @@
-import { PlusIcon, Trash2Icon } from 'lucide-react'
-import { useFieldArray, useFormContext } from 'react-hook-form'
-import { MailingMessageTextField } from '@/features/mailings/components/messages-editor/MailingMessageTextField'
-import { MsisdnField } from '@/features/mailings/components/messages-editor/MsisdnField'
-import { getMessagesArrayError } from '@/features/mailings/components/messages-editor/lib'
+import { PlusIcon, Trash2Icon } from "lucide-react";
+import { useFieldArray, useFormContext } from "react-hook-form";
+import { MsisdnField } from "@/features/mailings/components/messages-editor/MsisdnField";
+import { getMessagesArrayError } from "@/features/mailings/components/messages-editor/lib";
 import {
   defaultMessageValues,
   type MailingReplaceFormValues,
-} from '@/features/mailings/schemas/mailing.schema'
-import { BELARUS_PHONE_FORMAT } from '@/shared/lib/belarus-phone'
-import { SMS_TEXT_MAX_LENGTH } from '@/shared/lib/sms-text'
-import { Button } from '@/shared/ui/button'
+} from "@/features/mailings/schemas/mailing.schema";
+import { BELARUS_PHONE_FORMAT } from "@/shared/lib/belarus-phone";
+import { SMS_TEXT_MAX_LENGTH } from "@/shared/lib/sms-text";
+import { Button } from "@/shared/ui/button";
+import { MailingMessageTextField } from "./MailingMessageTextField";
 
 export function DifferentTextEditor() {
   const {
     control,
     formState: { errors },
-  } = useFormContext<MailingReplaceFormValues>()
+  } = useFormContext<MailingReplaceFormValues>();
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'messages',
-  })
+    name: "messages",
+  });
 
-  const messagesError = getMessagesArrayError(errors.messages)
+  const messagesError = getMessagesArrayError(errors.messages);
 
   return (
     <div className="space-y-4">
@@ -30,7 +30,7 @@ export function DifferentTextEditor() {
         <div>
           <h3 className="text-sm font-medium">Сообщения</h3>
           <p className="text-sm text-muted-foreground">
-            Минимум одно SMS. Номер: {BELARUS_PHONE_FORMAT}. Текст: до{' '}
+            Минимум одно SMS. Номер: {BELARUS_PHONE_FORMAT}. Текст: до{" "}
             {SMS_TEXT_MAX_LENGTH} символов.
           </p>
         </div>
@@ -80,5 +80,5 @@ export function DifferentTextEditor() {
         ))}
       </div>
     </div>
-  )
+  );
 }

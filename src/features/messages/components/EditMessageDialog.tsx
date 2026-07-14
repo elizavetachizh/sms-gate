@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { Controller, useForm, useWatch } from "react-hook-form";
-import { TemplatePicker } from "@/features/templates/components/TemplatePicker";
-import { useMailingTemplatePicker } from "@/features/mailings/components/messages-editor/useMailingTemplatePicker";
+import { Controller, FormProvider, useForm } from "react-hook-form";
+import { MailingTextField } from "@/features/mailings/components/messages-editor/MailingTextField";
 import {
   createMessageFormSchema,
   type CreateMessageFormValues,
@@ -32,7 +31,6 @@ import {
   DialogTitle,
 } from "@/shared/ui/dialog";
 import { PhoneInput } from "@/shared/ui/phone-input";
-import { SmsTextField } from "@/shared/ui/sms-text-field";
 
 interface EditMessageDialogProps {
   mailingId: string;
@@ -47,30 +45,6 @@ function getEditFormValues(message: MessageRead): CreateMessageFormValues {
     msisdn: message.msisdn,
     text: message.text,
   };
-}
-
-interface EditMessageTemplatePickerProps {
-  onApplyText: (text: string) => void;
-}
-
-function EditMessageTemplatePicker({
-  onApplyText,
-}: EditMessageTemplatePickerProps) {
-  const { templates, isLoading, isError, selectedTemplateId, applyTemplate } =
-    useMailingTemplatePicker(onApplyText);
-
-  return (
-    <TemplatePicker
-      id="edit-message-template"
-      label="Шаблон"
-      templates={templates}
-      isLoading={isLoading}
-      isError={isError}
-      value={selectedTemplateId}
-      onChange={applyTemplate}
-      className="sm:w-48"
-    />
-  );
 }
 
 interface EditMessageDialogFormProps {
@@ -89,19 +63,17 @@ function EditMessageDialogForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const updateMessage = useUpdateMessage(mailingId);
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    setError,
-    control,
-    formState: { errors },
-  } = useForm<CreateMessageFormValues>({
+  const form = useForm<CreateMessageFormValues>({
     resolver: zodResolver(createMessageFormSchema),
     defaultValues: getEditFormValues(message),
   });
 
-  const text = useWatch({ control, name: "text" }) ?? "";
+  const {
+    handleSubmit,
+    setError,
+    control,
+    formState: { errors },
+  } = form;
 
   async function onSubmit(values: CreateMessageFormValues) {
     setSubmitError(null);
@@ -140,56 +112,53 @@ function EditMessageDialogForm({
   }
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-      <Controller
-        control={control}
-        name="msisdn"
-        render={({ field }) => (
-          <PhoneInput
-            id="edit-message-msisdn"
-            label="Номер телефона"
-            value={field.value}
-            onChange={field.onChange}
-            onBlur={field.onBlur}
-            error={errors.msisdn?.message}
-          />
+    <FormProvider {...form}>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          control={control}
+          name="msisdn"
+          render={({ field }) => (
+            <PhoneInput
+              id="edit-message-msisdn"
+              label="Номер телефона"
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              error={errors.msisdn?.message}
+            />
+          )}
+        />
+
+        <MailingTextField<CreateMessageFormValues>
+          name="text"
+          id="edit-message-text"
+          templatePickerId="edit-message-template"
+          pickerClassName="sm:w-48"
+          rows={4}
+        />
+
+        {submitError && (
+          <ActionAlert action="error" entity="message" message={submitError} />
         )}
-      />
 
-      <SmsTextField
-        id="edit-message-text"
-        value={text}
-        error={errors.text?.message}
-        rows={4}
-        {...register("text")}
-        templatePicker={
-          <EditMessageTemplatePicker
-            onApplyText={(templateText) =>
-              setValue("text", templateText, { shouldValidate: true })
-            }
-          />
-        }
-      />
-
-      {submitError && (
-        <ActionAlert action="error" entity="message" message={submitError} />
-      )}
-
-      <DialogFooter>
-        <Button
-          type="button"
-          variant="outline"
-          disabled={updateMessage.isPending}
-          onClick={onClose}
-        >
-          Отмена
-        </Button>
-        <Button type="submit" disabled={updateMessage.isPending}>
-          {updateMessage.isPending && <Loader2Icon className="animate-spin" />}
-          Сохранить
-        </Button>
-      </DialogFooter>
-    </form>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={updateMessage.isPending}
+            onClick={onClose}
+          >
+            Отмена
+          </Button>
+          <Button type="submit" disabled={updateMessage.isPending}>
+            {updateMessage.isPending && (
+              <Loader2Icon className="animate-spin" />
+            )}
+            Сохранить
+          </Button>
+        </DialogFooter>
+      </form>
+    </FormProvider>
   );
 }
 

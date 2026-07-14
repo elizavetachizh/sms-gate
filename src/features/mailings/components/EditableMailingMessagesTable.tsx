@@ -71,23 +71,22 @@ export function EditableMailingMessagesTable({
     [selectableMessages],
   );
 
-  const selectedCount = selectedIds.size;
+  const messageIds = useMemo(
+    () => new Set(messages.map((message) => message.id)),
+    [messages],
+  );
+
+  const validSelectedIds = useMemo(
+    () =>
+      new Set([...selectedIds].filter((id) => messageIds.has(id))),
+    [messageIds, selectedIds],
+  );
+
+  const selectedCount = validSelectedIds.size;
   const allSelected =
     selectableIds.length > 0 &&
-    selectableIds.every((id) => selectedIds.has(id));
-  const someSelected = selectableIds.some((id) => selectedIds.has(id));
-
-  useEffect(() => {
-    setSelectedIds((current) => {
-      const next = new Set(
-        [...current].filter((id) =>
-          messages.some((message) => message.id === id),
-        ),
-      );
-
-      return next.size === current.size ? current : next;
-    });
-  }, [messages]);
+    selectableIds.every((id) => validSelectedIds.has(id));
+  const someSelected = selectableIds.some((id) => validSelectedIds.has(id));
 
   useEffect(() => {
     if (selectAllRef.current) {
@@ -139,7 +138,7 @@ export function EditableMailingMessagesTable({
     if (!savedProviderCode || selectedCount === 0) return;
 
     try {
-      const remaining = filterMessagesExcludingIds(messages, selectedIds);
+      const remaining = filterMessagesExcludingIds(messages, validSelectedIds);
       await updateMailing.replaceMessages(
         savedProviderCode,
         messagesToUpdatePayload(remaining),
@@ -214,7 +213,7 @@ export function EditableMailingMessagesTable({
           {messages.length ? (
             messages.map((message) => {
               const isSelectable = canEdit && message.status === "created";
-              const isSelected = selectedIds.has(message.id);
+              const isSelected = validSelectedIds.has(message.id);
 
               return (
                 <TableRow
