@@ -21,6 +21,7 @@ export {
   messagesApi,
   meApi,
   providersApi,
+  servicesApi,
   statsApi,
   templatesApi,
 } from "./endpoints.ts";

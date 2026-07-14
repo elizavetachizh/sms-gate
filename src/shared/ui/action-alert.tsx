@@ -93,7 +93,7 @@ export function getActionAlertContent(
   return {
     variant: ACTION_VARIANTS[action] ?? 'default',
     title: ACTION_TITLES[action],
-    description: ENTITY_MESSAGES[entity][action],
+    description: options?.message ?? ENTITY_MESSAGES[entity][action],
     icon: ACTION_ICONS[action],
   }
 }

@@ -7,6 +7,7 @@ import {
   useState,
   type ComponentProps,
   type ReactNode,
+  type RefObject,
 } from 'react'
 import { XIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -17,9 +18,14 @@ interface DialogContextValue {
   titleId: string
   descriptionId: string
   setHasDescription: (value: boolean) => void
+  portalContainerRef: RefObject<HTMLDialogElement | null>
 }
 
 const DialogContext = createContext<DialogContextValue | null>(null)
+
+export function useDialogPortalContainer() {
+  return useContext(DialogContext)?.portalContainerRef ?? null
+}
 
 interface DialogProps {
   open: boolean
@@ -46,13 +52,19 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
 
   return (
     <DialogContext.Provider
-      value={{ onOpenChange, titleId, descriptionId, setHasDescription }}
+      value={{
+        onOpenChange,
+        titleId,
+        descriptionId,
+        setHasDescription,
+        portalContainerRef: ref,
+      }}
     >
       <dialog
         ref={ref}
         aria-labelledby={titleId}
         aria-describedby={hasDescription ? descriptionId : undefined}
-        className="fixed top-1/2 left-1/2 z-50 m-0 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-0 shadow-lg backdrop:bg-black/50"
+        className="fixed inset-0 m-0 hidden w-full max-w-none border-0 bg-transparent p-4 shadow-none backdrop:bg-black/50 open:flex open:items-center open:justify-center"
         onClose={() => onOpenChange(false)}
         onClick={(event) => {
           if (event.target === ref.current) {
@@ -69,12 +81,23 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
 export function DialogContent({
   className,
   children,
+  onClick,
   ...props
 }: ComponentProps<'div'>) {
   const context = useContext(DialogContext)
 
   return (
-    <div className={cn('relative p-6', className)} {...props}>
+    <div
+      className={cn(
+        'relative w-full max-w-lg rounded-lg border bg-background p-6 shadow-lg',
+        className,
+      )}
+      onClick={(event) => {
+        event.stopPropagation()
+        onClick?.(event)
+      }}
+      {...props}
+    >
       {children}
       {context && (
         <Button

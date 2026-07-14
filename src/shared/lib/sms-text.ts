@@ -1,5 +1,6 @@
-import { SMS_SEGMENT_LENGTH } from "@/features/mailings/schemas/mailing.schema";
 import type z from "zod";
+
+export const SMS_TEXT_MAX_LENGTH = 1600;
 
 export function addSmsTextIssues(
   text: string,
@@ -13,10 +14,10 @@ export function addSmsTextIssues(
       message: "Введите текст SMS",
       path,
     });
-  } else if (trimmed.length > SMS_SEGMENT_LENGTH) {
+  } else if (trimmed.length > SMS_TEXT_MAX_LENGTH) {
     ctx.addIssue({
       code: "custom",
-      message: `Не более ${SMS_SEGMENT_LENGTH} символов`,
+      message: `Не более ${SMS_TEXT_MAX_LENGTH} символов`,
       path,
     });
   }

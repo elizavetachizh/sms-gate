@@ -19,7 +19,6 @@ import {
   applyValidationErrors,
   mapValidationErrors,
 } from '@/shared/api/map-validation-errors'
-import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/ui/button'
 import {
   Card,
@@ -31,7 +30,7 @@ import {
 } from '@/shared/ui/card'
 import { Input } from '@/shared/ui/input'
 import { Label } from '@/shared/ui/label'
-import { Textarea } from '@/shared/ui/textarea'
+import { SmsTextField } from '@/shared/ui/sms-text-field'
 
 interface TemplateFormProps {
   mode: 'create' | 'edit'
@@ -68,8 +67,6 @@ export function TemplateForm({ mode, templateId, initialValues }: TemplateFormPr
   }, [initialValues, reset])
 
   const text = useWatch({ control, name: 'text' }) ?? ''
-  const textLength = text.length
-  const isOverLimit = textLength > SMS_TEXT_MAX_LENGTH
 
   async function onSubmit(values: TemplateFormValues) {
     setSubmitError(null)
@@ -123,30 +120,15 @@ export function TemplateForm({ mode, templateId, initialValues }: TemplateFormPr
             )}
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <Label htmlFor="text">Текст SMS</Label>
-              <span
-                className={cn(
-                  'text-xs tabular-nums',
-                  isOverLimit ? 'font-medium text-destructive' : 'text-muted-foreground',
-                )}
-                aria-live="polite"
-              >
-                {textLength}/{SMS_TEXT_MAX_LENGTH}
-              </span>
-            </div>
-            <Textarea
-              id="text"
-              placeholder="Здравствуйте! Ваш заказ готов."
-              rows={5}
-              aria-invalid={Boolean(errors.text)}
-              {...register('text')}
-            />
-            {errors.text?.message && (
-              <p className="text-sm text-destructive">{errors.text.message}</p>
-            )}
-          </div>
+          <SmsTextField
+            id="text"
+            value={text}
+            maxLength={SMS_TEXT_MAX_LENGTH}
+            error={errors.text?.message}
+            placeholder="Здравствуйте! Ваш заказ готов."
+            rows={5}
+            {...register('text')}
+          />
         </CardContent>
 
         <CardFooter className="flex flex-col items-stretch gap-3 sm:flex-row sm:justify-between">

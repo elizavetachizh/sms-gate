@@ -22,7 +22,6 @@ import {
   applyValidationErrors,
   mapValidationErrors,
 } from '@/shared/api/map-validation-errors'
-import { cn } from '@/shared/lib/utils'
 import { ActionAlert } from '@/shared/ui/action-alert'
 import { Button } from '@/shared/ui/button'
 import {
@@ -33,10 +32,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/shared/ui/dialog'
-import { Label } from '@/shared/ui/label'
 import { PhoneInput } from '@/shared/ui/phone-input'
-import { Textarea } from '@/shared/ui/textarea'
-import { SMS_SEGMENT_LENGTH } from '@/features/mailings/schemas/mailing.schema'
+import { SmsTextField } from '@/shared/ui/sms-text-field'
 
 interface EditMessageDialogProps {
   mailingId: string
@@ -85,8 +82,6 @@ export function EditMessageDialog({
   })
 
   const text = useWatch({ control, name: 'text' }) ?? ''
-  const textLength = text.length
-  const isOverLimit = textLength > SMS_SEGMENT_LENGTH
 
   useEffect(() => {
     if (open && message) {
@@ -165,20 +160,13 @@ export function EditMessageDialog({
             )}
           />
 
-          <div className="space-y-2">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex flex-1 items-center justify-between gap-2">
-                <Label htmlFor="edit-message-text">Текст SMS</Label>
-                <span
-                  className={cn(
-                    'text-xs tabular-nums',
-                    isOverLimit ? 'font-medium text-destructive' : 'text-muted-foreground',
-                  )}
-                  aria-live="polite"
-                >
-                  {textLength}/{SMS_SEGMENT_LENGTH}
-                </span>
-              </div>
+          <SmsTextField
+            id="edit-message-text"
+            value={text}
+            error={errors.text?.message}
+            rows={4}
+            {...register('text')}
+            templatePicker={
               <TemplatePicker
                 id="edit-message-template"
                 label="Шаблон"
@@ -188,17 +176,8 @@ export function EditMessageDialog({
                 value={selectedTemplateId}
                 onChange={applyTemplate}
               />
-            </div>
-            <Textarea
-              id="edit-message-text"
-              rows={4}
-              placeholder="Текст сообщения"
-              {...register('text')}
-            />
-            {errors.text?.message && (
-              <p className="text-sm text-destructive">{errors.text.message}</p>
-            )}
-          </div>
+            }
+          />
 
           {submitError && (
             <ActionAlert action="error" entity="message" message={submitError} />

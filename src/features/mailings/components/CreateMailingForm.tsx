@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Link, useNavigate } from '@tanstack/react-router'
-import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { ArrowLeftIcon } from 'lucide-react'
-import { MessagesEditor } from '@/features/mailings/components/MessagesEditor'
-import { useCreateMailing, isValidationError } from '@/features/mailings/hooks/useCreateMailing'
+import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { ArrowLeftIcon } from "lucide-react";
+import { MessagesEditor } from "@/features/mailings/components/MessagesEditor";
+import {
+  useCreateMailing,
+  isValidationError,
+} from "@/features/mailings/hooks/useCreateMailing";
 import {
   defaultMailingFormValues,
   mailingCreateSchema,
   type MailingCreateFormValues,
-} from '@/features/mailings/schemas/mailing.schema'
-import { useProviders } from '@/features/providers/hooks/useProviders'
-import { defaultMailingsSearch } from '@/features/mailings/search'
-import { applyCreateMailingValidationErrors } from '@/features/mailings/lib/mailing-api-errors'
-import { Button } from '@/shared/ui/button'
+} from "@/features/mailings/schemas/mailing.schema";
+import { useProviders } from "@/features/providers/hooks/useProviders";
+import { defaultMailingsSearch } from "@/features/mailings/search";
+import { applyCreateMailingValidationErrors } from "@/features/mailings/lib/mailing-api-errors";
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
@@ -21,29 +24,32 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card'
-import { Label } from '@/shared/ui/label'
+} from "@/shared/ui/card";
+import { Label } from "@/shared/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/ui/select'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/select";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 export function CreateMailingForm() {
-  const navigate = useNavigate()
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const navigate = useNavigate();
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const { data: providersData, isLoading: isProvidersLoading, isError: isProvidersError } =
-    useProviders()
-  const createMailing = useCreateMailing()
+  const {
+    data: providersData,
+    isLoading: isProvidersLoading,
+    isError: isProvidersError,
+  } = useProviders();
+  const createMailing = useCreateMailing();
 
   const form = useForm<MailingCreateFormValues>({
     resolver: zodResolver(mailingCreateSchema),
     defaultValues: defaultMailingFormValues,
-  })
+  });
 
   const {
     handleSubmit,
@@ -51,22 +57,24 @@ export function CreateMailingForm() {
     control,
     setError,
     formState: { errors },
-  } = form
+  } = form;
 
-  const providerCode = useWatch({ control, name: 'provider_code' })
-  const providers = providersData?.items ?? []
+  const providerCode = useWatch({ control, name: "provider_code" });
+  const providers = providersData?.items ?? [];
 
   useEffect(() => {
     if (!providerCode && providersData?.items?.length) {
-      setValue('provider_code', providersData.items[0].code, { shouldValidate: true })
+      setValue("provider_code", providersData.items[0].code, {
+        shouldValidate: true,
+      });
     }
-  }, [providerCode, providersData?.items, setValue])
+  }, [providerCode, providersData?.items, setValue]);
 
   async function onSubmit(values: MailingCreateFormValues) {
-    setSubmitError(null)
+    setSubmitError(null);
 
     const messages =
-      values.text_mode === 'same'
+      values.text_mode === "same"
         ? values.messages.map((message) => ({
             msisdn: message.msisdn,
             text: values.shared_text.trim(),
@@ -74,27 +82,27 @@ export function CreateMailingForm() {
         : values.messages.map((message) => ({
             msisdn: message.msisdn,
             text: message.text.trim(),
-          }))
+          }));
 
     try {
       const mailing = await createMailing.mutateAsync({
         provider_code: values.provider_code,
         messages,
-      })
+      });
 
       navigate({
-        to: '/mailings/$mailingId',
+        to: "/mailings/$mailingId",
         params: { mailingId: mailing.id },
-      })
+      });
     } catch (error) {
       if (isValidationError(error)) {
-        applyCreateMailingValidationErrors(error, setError)
-        return
+        applyCreateMailingValidationErrors(error, setError);
+        return;
       }
 
       setSubmitError(
-        error instanceof Error ? error.message : 'Не удалось создать рассылку',
-      )
+        error instanceof Error ? error.message : "Не удалось создать рассылку",
+      );
     }
   }
 
@@ -105,7 +113,8 @@ export function CreateMailingForm() {
           <CardHeader>
             <CardTitle>Параметры рассылки</CardTitle>
             <CardDescription>
-              Создание не отправляет SMS — отправка будет доступна на странице рассылки.
+              Создание не отправляет SMS — отправка будет доступна на странице
+              рассылки.
             </CardDescription>
           </CardHeader>
 
@@ -113,7 +122,9 @@ export function CreateMailingForm() {
             <div className="space-y-2">
               <Label htmlFor="provider_code">Провайдер</Label>
 
-              {isProvidersLoading && <Skeleton className="h-9 w-full max-w-xs" />}
+              {isProvidersLoading && (
+                <Skeleton className="h-9 w-full max-w-xs" />
+              )}
 
               {isProvidersError && (
                 <p className="text-sm text-destructive">
@@ -121,32 +132,40 @@ export function CreateMailingForm() {
                 </p>
               )}
 
-              {!isProvidersLoading && !isProvidersError && providers.length > 0 && (
-                <Select
-                  value={providerCode}
-                  onValueChange={(value) =>
-                    setValue('provider_code', value, { shouldValidate: true })
-                  }
-                >
-                  <SelectTrigger id="provider_code" className="max-w-xs">
-                    <SelectValue placeholder="Выберите провайдера" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {providers.map((provider) => (
-                      <SelectItem key={provider.code} value={provider.code  }>
-                        {provider.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              {!isProvidersLoading &&
+                !isProvidersError &&
+                providers.length > 0 && (
+                  <Select
+                    value={providerCode}
+                    onValueChange={(value) =>
+                      setValue("provider_code", value, { shouldValidate: true })
+                    }
+                  >
+                    <SelectTrigger id="provider_code" className="max-w-xs">
+                      <SelectValue placeholder="Выберите провайдера" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {providers.map((provider) => (
+                        <SelectItem key={provider.code} value={provider.code}>
+                          {provider.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
 
-              {!isProvidersLoading && !isProvidersError && providers.length === 0 && (
-                <p className="text-sm text-muted-foreground">Провайдеры не найдены</p>
-              )}
+              {!isProvidersLoading &&
+                !isProvidersError &&
+                providers.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    Провайдеры не найдены
+                  </p>
+                )}
 
               {errors.provider_code?.message && (
-                <p className="text-sm text-destructive">{errors.provider_code.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.provider_code.message}
+                </p>
               )}
             </div>
 
@@ -163,9 +182,13 @@ export function CreateMailingForm() {
 
             <Button
               type="submit"
-              disabled={createMailing.isPending || isProvidersLoading || providers.length === 0}
+              disabled={
+                createMailing.isPending ||
+                isProvidersLoading ||
+                providers.length === 0
+              }
             >
-              {createMailing.isPending ? 'Создание…' : 'Создать рассылку'}
+              {createMailing.isPending ? "Создание…" : "Создать рассылку"}
             </Button>
           </CardFooter>
         </Card>
@@ -175,5 +198,5 @@ export function CreateMailingForm() {
         )}
       </form>
     </FormProvider>
-  )
+  );
 }

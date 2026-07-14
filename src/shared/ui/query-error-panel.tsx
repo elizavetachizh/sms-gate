@@ -1,3 +1,4 @@
+import { cn } from "@/shared/lib/utils";
 import { Button } from "./button";
 
 type QueryErrorPanelProps = {
@@ -16,14 +17,21 @@ export function QueryErrorPanel({
   className,
 }: QueryErrorPanelProps) {
   return (
-    <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+    <div
+      className={cn(
+        "rounded-lg border border-destructive/30 bg-destructive/5 p-4",
+        className,
+      )}
+    >
       <p className="text-sm font-medium text-destructive">{title}</p>
       <p className="mt-1 text-sm text-muted-foreground">
         {error instanceof Error ? error.message : "Неизвестная ошибка"}
       </p>
-      <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
-        {retryLabel}
-      </Button>
+      {onRetry && (
+        <Button variant="outline" size="sm" className="mt-3" onClick={onRetry}>
+          {retryLabel}
+        </Button>
+      )}
     </div>
   );
 }

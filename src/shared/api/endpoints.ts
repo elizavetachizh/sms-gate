@@ -17,6 +17,8 @@ import type {
   ProviderRead,
   ProviderUpdate,
   SendMailingResponse,
+  SmsTextAnalyzeRequest,
+  SmsTextAnalyzeResponse,
   TemplateListParams,
   UserRead,
 } from "./types.ts";
@@ -109,4 +111,9 @@ export const statsApi = {
         fill_gaps: params.fill_gaps,
       },
     ),
+};
+
+export const servicesApi = {
+  analyzeText: (body: SmsTextAnalyzeRequest) =>
+    apiClient.post<SmsTextAnalyzeResponse>("/services/analyze-text", body),
 };

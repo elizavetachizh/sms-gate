@@ -1,6 +1,7 @@
 import { z } from 'zod'
+import { SMS_TEXT_MAX_LENGTH } from '@/shared/lib/sms-text'
 
-export const SMS_TEXT_MAX_LENGTH = 1600
+export { SMS_TEXT_MAX_LENGTH }
 
 export const templateFormSchema = z.object({
   name: z

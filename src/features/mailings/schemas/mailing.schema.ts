@@ -1,10 +1,11 @@
 import { z } from "zod";
 import { belarusPhoneSchema } from "@/shared/lib/belarus-phone";
-import { addSmsTextIssues } from "@/shared/lib/sms-text";
+import { addSmsTextIssues, SMS_TEXT_MAX_LENGTH } from "@/shared/lib/sms-text";
 
 const msisdnSchema = belarusPhoneSchema;
 
-export const SMS_SEGMENT_LENGTH = 1600;
+/** @deprecated Use SMS_TEXT_MAX_LENGTH from @/shared/lib/sms-text */
+export const SMS_SEGMENT_LENGTH = SMS_TEXT_MAX_LENGTH;
 
 export const mailingTextModes = ["same", "different"] as const;
 export type MailingTextMode = (typeof mailingTextModes)[number];

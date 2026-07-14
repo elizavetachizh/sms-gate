@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { useDialogPortalContainer } from '@/shared/ui/dialog'
 
 function Select({
   ...props
@@ -53,8 +54,12 @@ function SelectContent({
   position = 'popper',
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
+  const dialogPortalContainer = useDialogPortalContainer()
+
   return (
-    <SelectPrimitive.Portal>
+    <SelectPrimitive.Portal
+      container={dialogPortalContainer?.current ?? undefined}
+    >
       <SelectPrimitive.Content
         className={cn(
           'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md',
@@ -68,9 +73,9 @@ function SelectContent({
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport
           className={cn(
-            'p-1',
+            'max-h-96 p-1',
             position === 'popper' &&
-              'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1',
+              'w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1',
           )}
         >
           {children}

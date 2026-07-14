@@ -9,7 +9,8 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import { EditableMailingMessagesTable } from "@/features/mailings/components/EditableMailingMessagesTable";
-import { MailingSettingsCard } from "@/features/mailings/components/MailingSettingsCard";
+import { MailingProviderField } from "@/features/mailings/components/MailingProviderField";
+import { useMailingProvider } from "@/features/mailings/hooks/useMailingProvider";
 import { MailingStatusBadge } from "@/features/mailings/components/MailingStatusBadge";
 import { useDeleteMailing } from "@/features/mailings/hooks/useDeleteMailing";
 import { useMailingDetail } from "@/features/mailings/hooks/useMailingDetail";
@@ -49,6 +50,7 @@ export function MailingDetailPage() {
   } = useMailingDetail(mailingId);
   const sendMailing = useSendMailing(mailingId);
   const deleteMailing = useDeleteMailing();
+  const providerState = useMailingProvider(mailingId);
 
   const isPolling =
     Boolean(mailing) &&
@@ -248,23 +250,28 @@ export function MailingDetailPage() {
               <dt className="text-sm text-muted-foreground">ID</dt>
               <dd className="font-mono text-sm">{mailing.id}</dd>
             </div>
+            <div className="space-y-1 sm:col-span-2 lg:col-span-3">
+              <dt className="text-sm text-muted-foreground">Провайдер</dt>
+              <dd>
+                <MailingProviderField
+                  canEdit={canSend}
+                  providerState={providerState}
+                  onUpdated={() =>
+                    setActionAlert({ action: "updated", entity: "mailing" })
+                  }
+                  onError={(message) =>
+                    setActionAlert({
+                      action: "error",
+                      entity: "mailing",
+                      message,
+                    })
+                  }
+                />
+              </dd>
+            </div>
           </dl>
         </CardContent>
       </Card>
-
-      {canSend && (
-        <MailingSettingsCard
-          mailingId={mailingId}
-          messageCount={mailing.messages.length}
-          messages={mailing.messages}
-          onUpdated={() =>
-            setActionAlert({ action: "updated", entity: "mailing" })
-          }
-          onError={(message) =>
-            setActionAlert({ action: "error", entity: "mailing", message })
-          }
-        />
-      )}
 
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
@@ -283,11 +290,14 @@ export function MailingDetailPage() {
             </Button>
           )}
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="space-y-4">
           <EditableMailingMessagesTable
             mailingId={mailingId}
             messages={mailing.messages}
             canEdit={canSend}
+            embedded
+            savedProviderCode={providerState.savedProviderCode}
+            isProviderBusy={providerState.isSaving}
             onMessageDeleted={() =>
               setActionAlert({ action: "deleted", entity: "message" })
             }
@@ -305,8 +315,15 @@ export function MailingDetailPage() {
         mailingId={mailingId}
         open={isCreateMessageOpen}
         onOpenChange={setIsCreateMessageOpen}
-        onSuccess={() =>
-          setActionAlert({ action: "created", entity: "message" })
+        onSuccess={(count) =>
+          setActionAlert({
+            action: "created",
+            entity: "message",
+            message:
+              count === 1
+                ? undefined
+                : `Добавлено ${count} SMS`,
+          })
         }
       />
 
