@@ -1,11 +1,11 @@
-import { TemplatePicker } from '@/features/templates/components/TemplatePicker'
-import { useMailingTemplatePicker } from '@/features/mailings/components/messages-editor/useMailingTemplatePicker'
+import { TemplatePicker } from "@/features/templates/components/TemplatePicker";
+import { useMailingTemplatePicker } from "@/features/mailings/components/messages-editor/useMailingTemplatePicker";
 
 interface MailingTemplatePickerProps {
-  id: string
-  hideWhenEmpty?: boolean
-  className?: string
-  onApplyText: (text: string) => void
+  id: string;
+  hideWhenEmpty?: boolean;
+  className?: string;
+  onApplyText: (text: string) => void;
 }
 
 export function MailingTemplatePicker({
@@ -20,16 +20,16 @@ export function MailingTemplatePicker({
     isError,
     selectedTemplateId,
     applyTemplate,
-  } = useMailingTemplatePicker(onApplyText)
+  } = useMailingTemplatePicker(onApplyText);
 
   if (hideWhenEmpty && templates.length === 0 && !isLoading && !isError) {
-    return null
+    return null;
   }
 
   return (
     <TemplatePicker
       id={id}
-      label="Шаблон"
+      label=""
       templates={templates}
       isLoading={isLoading}
       isError={isError}
@@ -37,5 +37,5 @@ export function MailingTemplatePicker({
       onChange={applyTemplate}
       className={className}
     />
-  )
+  );
 }

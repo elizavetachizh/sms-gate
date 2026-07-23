@@ -16,7 +16,7 @@ export function MailingMessageTextField({
       id={`messages.${index}.text`}
       templatePickerId={`messages.${index}.template`}
       rows={rows}
-      pickerClassName="sm:w-48"
+      pickerClassName="w-full sm:w-52"
     />
   );
 }

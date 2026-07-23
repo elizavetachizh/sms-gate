@@ -38,13 +38,13 @@ export const SmsTextField = forwardRef<HTMLTextAreaElement, SmsTextFieldProps>(
   ) {
     return (
       <div className={cn("space-y-2", fieldClassName)}>
-        {templatePicker}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-1 items-center justify-between gap-2">
             <Label htmlFor={id}>{label}</Label>
-
             {showAnalysis && <SmsTextAnalysisSummary text={value} />}
           </div>
+
+          {templatePicker}
         </div>
 
         <Textarea

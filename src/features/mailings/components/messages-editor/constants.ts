@@ -5,6 +5,7 @@ import type { MailingTextMode } from "@/features/mailings/schemas/mailing.schema
 export interface TextModeOption {
   value: MailingTextMode;
   label: string;
+  shortLabel: string;
   description: string;
   icon: LucideIcon;
 }
@@ -12,14 +13,16 @@ export interface TextModeOption {
 export const TEXT_MODE_OPTIONS: TextModeOption[] = [
   {
     value: "same",
-    label: "Один текст",
-    description: "Один SMS всем получателям — укажите текст и список номеров",
+    label: "Один текст всем",
+    shortLabel: "Одинаковый текст",
+    description: "Одинаковое сообщение для всех получателей",
     icon: MessageSquareIcon,
   },
   {
     value: "different",
-    label: "Разный текст",
-    description: "У каждого получателя свой текст сообщения",
+    label: "Свой текст каждому",
+    shortLabel: "Различные тексты",
+    description: "Различные сообщения для каждого получателя",
     icon: MessagesSquareIcon,
   },
 ];

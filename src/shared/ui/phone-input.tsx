@@ -33,8 +33,8 @@ export function PhoneInput({
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
-      {label && <Label htmlFor={id}>{label}</Label>}
+    <div className={cn(label ? 'space-y-2' : undefined, className)}>
+      {label ? <Label htmlFor={id}>{label}</Label> : null}
       <Input
         id={id}
         type="tel"
@@ -48,7 +48,7 @@ export function PhoneInput({
         onChange={(event) => handleChange(event.target.value)}
         {...props}
       />
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error ? <p className="mt-1.5 text-sm text-destructive">{error}</p> : null}
     </div>
   )
 }

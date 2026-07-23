@@ -8,6 +8,7 @@ import {
 } from "@/features/mailings/schemas/mailing.schema";
 import { BELARUS_PHONE_FORMAT } from "@/shared/lib/belarus-phone";
 import { SMS_TEXT_MAX_LENGTH } from "@/shared/lib/sms-text";
+import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
 import { MailingMessageTextField } from "./MailingMessageTextField";
 
@@ -26,14 +27,18 @@ export function DifferentTextEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-medium">Сообщения</h3>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-medium">Сообщения</h3>
+            <Badge variant="muted">{fields.length}</Badge>
+          </div>
           <p className="text-sm text-muted-foreground">
-            Минимум одно SMS. Номер: {BELARUS_PHONE_FORMAT}. Текст: до{" "}
-            {SMS_TEXT_MAX_LENGTH} символов.
+            Номер: {BELARUS_PHONE_FORMAT}. Текст: до {SMS_TEXT_MAX_LENGTH}{" "}
+            символов.
           </p>
         </div>
+
         <Button
           type="button"
           variant="outline"
@@ -41,7 +46,7 @@ export function DifferentTextEditor() {
           onClick={() => append(defaultMessageValues)}
         >
           <PlusIcon />
-          Добавить
+          Добавить SMS
         </Button>
       </div>
 
@@ -49,14 +54,20 @@ export function DifferentTextEditor() {
         <p className="text-sm text-destructive">{messagesError}</p>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         {fields.map((field, index) => (
-          <div
+          <article
             key={field.id}
-            className="space-y-3 rounded-lg border bg-background p-4"
+            className="space-y-3 rounded-md border bg-background p-3 sm:p-4"
           >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">SMS #{index + 1}</span>
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="flex size-6 items-center justify-center rounded-md bg-muted text-xs font-medium tabular-nums text-muted-foreground">
+                  {index + 1}
+                </span>
+                <span className="text-sm font-medium">SMS #{index + 1}</span>
+              </div>
+
               {fields.length > 1 && (
                 <Button
                   type="button"
@@ -70,13 +81,9 @@ export function DifferentTextEditor() {
               )}
             </div>
 
-            <MsisdnField
-              index={index}
-              label="Номер телефона"
-              className="mb-3"
-            />
+            <MsisdnField index={index} label="Номер телефона" />
             <MailingMessageTextField index={index} />
-          </div>
+          </article>
         ))}
       </div>
     </div>

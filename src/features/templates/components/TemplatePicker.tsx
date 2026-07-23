@@ -35,7 +35,7 @@ export function TemplatePicker({
   if (isLoading) {
     return (
       <div className={className}>
-        {label && <Label className="mb-2 block">{label}</Label>}
+        {label ? <Label className="mb-2 block">{label}</Label> : null}
         <Skeleton className="h-9 w-full max-w-xs" />
       </div>
     )
@@ -44,7 +44,7 @@ export function TemplatePicker({
   if (isError) {
     return (
       <div className={className}>
-        {label && <Label className="mb-2 block">{label}</Label>}
+        {label ? <Label className="mb-2 block">{label}</Label> : null}
         <p className="text-sm text-destructive">Не удалось загрузить шаблоны</p>
       </div>
     )
@@ -52,11 +52,11 @@ export function TemplatePicker({
 
   return (
     <div className={className}>
-      {label && (
+      {label ? (
         <Label htmlFor={id} className="mb-2 block">
           {label}
         </Label>
-      )}
+      ) : null}
       <Select
         value={value ?? NONE_VALUE}
         onValueChange={(selected) => {
@@ -68,11 +68,15 @@ export function TemplatePicker({
           onChange(template)
         }}
       >
-        <SelectTrigger id={id} className="max-w-xs">
-          <SelectValue placeholder="Выберите шаблон" />
+        <SelectTrigger
+          id={id}
+          className="max-w-xs"
+          aria-label={label || 'Шаблон'}
+        >
+          <SelectValue placeholder="Шаблон" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={NONE_VALUE}>Не выбран</SelectItem>
+          <SelectItem value={NONE_VALUE}>Без шаблона</SelectItem>
           {templates.map((template) => (
             <SelectItem key={template.id} value={template.id}>
               {template.name}

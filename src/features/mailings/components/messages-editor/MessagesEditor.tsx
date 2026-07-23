@@ -25,9 +25,12 @@ export function MessagesEditor() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <TextModeSwitcher textMode={textMode} onChange={handleModeChange} />
-      {textMode === "same" ? <SameTextEditor /> : <DifferentTextEditor />}
+
+      <div className="rounded-lg border bg-muted/20 p-4 sm:p-5">
+        {textMode === "same" ? <SameTextEditor /> : <DifferentTextEditor />}
+      </div>
     </div>
   );
 }

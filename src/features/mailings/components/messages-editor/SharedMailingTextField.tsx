@@ -10,7 +10,7 @@ export function SharedMailingTextField() {
       placeholder="Текст сообщения для всех получателей"
       rows={4}
       hideTemplateWhenEmpty
-      pickerClassName="sm:w-48"
+      pickerClassName="w-full sm:w-52"
     />
   );
 }

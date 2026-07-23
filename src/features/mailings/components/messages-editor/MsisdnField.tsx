@@ -1,20 +1,26 @@
-import { Controller, useFormContext } from 'react-hook-form'
-import type { MailingReplaceFormValues } from '@/features/mailings/schemas/mailing.schema'
-import { PhoneInput } from '@/shared/ui/phone-input'
+import { Controller, useFormContext } from "react-hook-form";
+import type { MailingReplaceFormValues } from "@/features/mailings/schemas/mailing.schema";
+import { PhoneInput } from "@/shared/ui/phone-input";
 
 interface MsisdnFieldProps {
-  index: number
-  label: string
-  className?: string
+  index: number;
+  label: string;
+  className?: string;
+  hideLabel?: boolean;
 }
 
-export function MsisdnField({ index, label, className }: MsisdnFieldProps) {
+export function MsisdnField({
+  index,
+  label,
+  className,
+  hideLabel = false,
+}: MsisdnFieldProps) {
   const {
     control,
     formState: { errors },
-  } = useFormContext<MailingReplaceFormValues>()
+  } = useFormContext<MailingReplaceFormValues>();
 
-  const error = errors.messages?.[index]?.msisdn?.message
+  const error = errors.messages?.[index]?.msisdn?.message;
 
   return (
     <Controller
@@ -23,7 +29,8 @@ export function MsisdnField({ index, label, className }: MsisdnFieldProps) {
       render={({ field }) => (
         <PhoneInput
           id={`messages.${index}.msisdn`}
-          label={label}
+          label={hideLabel ? undefined : label}
+          aria-label={hideLabel ? label : undefined}
           value={field.value}
           onChange={field.onChange}
           onBlur={field.onBlur}
@@ -32,5 +39,5 @@ export function MsisdnField({ index, label, className }: MsisdnFieldProps) {
         />
       )}
     />
-  )
+  );
 }
