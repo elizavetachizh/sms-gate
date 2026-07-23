@@ -1,5 +1,4 @@
-import type { MailingCreateMessage, MessageRead } from '@/shared/api'
-import { normalizeBelarusPhoneDigits } from '@/shared/lib/belarus-phone'
+import type { MailingCreateMessage, MessageRead } from "@/shared/api";
 
 export function messagesToUpdatePayload(
   messages: MessageRead[],
@@ -7,7 +6,7 @@ export function messagesToUpdatePayload(
   return messages.map((message) => ({
     msisdn: message.msisdn,
     text: message.text,
-  }))
+  }));
 }
 
 export function filterMessagesExcludingIds(
@@ -15,39 +14,10 @@ export function filterMessagesExcludingIds(
   idsToDelete: Set<string>,
 ): MessageRead[] {
   if (idsToDelete.size === 0) {
-    return messages
+    return messages;
   }
 
   return messages.filter(
-    (message) =>
-      message.status !== 'created' || !idsToDelete.has(message.id),
-  )
-}
-
-export function filterMessagesForBulkDelete(
-  messages: MessageRead[],
-  msisdnsToDelete: Set<string>,
-): MessageRead[] {
-  if (msisdnsToDelete.size === 0) {
-    return messages
-  }
-
-  return messages.filter((message) => {
-    if (message.status !== 'created') {
-      return true
-    }
-
-    return !msisdnsToDelete.has(normalizeBelarusPhoneDigits(message.msisdn))
-  })
-}
-
-export function countDeletableMessages(
-  messages: MessageRead[],
-  msisdnsToDelete: Set<string>,
-): number {
-  return messages.filter(
-    (message) =>
-      message.status === 'created' &&
-      msisdnsToDelete.has(normalizeBelarusPhoneDigits(message.msisdn)),
-  ).length
+    (message) => message.status !== "created" || !idsToDelete.has(message.id),
+  );
 }

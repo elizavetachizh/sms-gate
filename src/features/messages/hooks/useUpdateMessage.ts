@@ -1,22 +1,22 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   isValidationError,
   messagesApi,
   type MailingCreateMessage,
   type MailingRead,
-} from '@/shared/api'
-import { mailingKeys } from '@/features/mailings/api/mailings.keys'
+} from "@/shared/api";
+import { mailingKeys } from "@/features/mailings/api/mailings.keys";
 
 export function useUpdateMessage(mailingId: string) {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({
       messageId,
       body,
     }: {
-      messageId: string
-      body: MailingCreateMessage
+      messageId: string;
+      body: MailingCreateMessage;
     }) => messagesApi.update(mailingId, messageId, body),
     onSuccess: (updatedMessage) => {
       queryClient.setQueryData<MailingRead>(
@@ -30,9 +30,9 @@ export function useUpdateMessage(mailingId: string) {
                 ),
               }
             : mailing,
-      )
+      );
     },
-  })
+  });
 }
 
-export { isValidationError }
+export { isValidationError };

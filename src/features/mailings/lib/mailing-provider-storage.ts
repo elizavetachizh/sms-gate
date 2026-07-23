@@ -1,10 +1,11 @@
-const KEY_PREFIX = 'mailing-provider:'
+// TODO: remove once MailingRead includes provider_code from the API.
+const KEY_PREFIX = "mailing-provider:";
 
 export function getStoredMailingProviderCode(mailingId: string): string | null {
   try {
-    return sessionStorage.getItem(`${KEY_PREFIX}${mailingId}`)
+    return sessionStorage.getItem(`${KEY_PREFIX}${mailingId}`);
   } catch {
-    return null
+    return null;
   }
 }
 
@@ -13,7 +14,7 @@ export function setStoredMailingProviderCode(
   providerCode: string,
 ): void {
   try {
-    sessionStorage.setItem(`${KEY_PREFIX}${mailingId}`, providerCode)
+    sessionStorage.setItem(`${KEY_PREFIX}${mailingId}`, providerCode);
   } catch {
     // sessionStorage may be unavailable
   }

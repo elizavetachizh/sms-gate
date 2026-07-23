@@ -1,45 +1,22 @@
-import { useFormContext, useWatch } from 'react-hook-form'
-import { MailingTemplatePicker } from '@/features/mailings/components/messages-editor/MailingTemplatePicker'
-import type { MailingReplaceFormValues } from '@/features/mailings/schemas/mailing.schema'
-import { SmsTextField } from '@/shared/ui/sms-text-field'
+import type { MailingReplaceFormValues } from "@/features/mailings/schemas/mailing.schema";
+import { MailingTextField } from "./MailingTextField";
 
 interface MailingMessageTextFieldProps {
-  index: number
-  rows?: number
+  index: number;
+  rows?: number;
 }
 
 export function MailingMessageTextField({
   index,
   rows = 3,
 }: MailingMessageTextFieldProps) {
-  const {
-    register,
-    control,
-    setValue,
-    formState: { errors },
-  } = useFormContext<MailingReplaceFormValues>()
-
-  const text = useWatch({ control, name: `messages.${index}.text` }) ?? ''
-  const textError = errors.messages?.[index]?.text?.message
-
   return (
-    <SmsTextField
+    <MailingTextField<MailingReplaceFormValues>
+      name={`messages.${index}.text`}
       id={`messages.${index}.text`}
-      value={text}
-      error={textError}
+      templatePickerId={`messages.${index}.template`}
       rows={rows}
-      {...register(`messages.${index}.text`)}
-      templatePicker={
-        <MailingTemplatePicker
-          id={`messages.${index}.template`}
-          className="sm:w-48"
-          onApplyText={(templateText) =>
-            setValue(`messages.${index}.text`, templateText, {
-              shouldValidate: true,
-            })
-          }
-        />
-      }
+      pickerClassName="sm:w-48"
     />
-  )
+  );
 }

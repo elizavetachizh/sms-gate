@@ -1,23 +1,23 @@
-import { Loader2Icon } from 'lucide-react'
-import type { useMailingProvider } from '@/features/mailings/hooks/useMailingProvider'
-import { Button } from '@/shared/ui/button'
-import { Label } from '@/shared/ui/label'
+import { Loader2Icon } from "lucide-react";
+import type { useMailingProvider } from "@/features/mailings/hooks/useMailingProvider";
+import { Button } from "@/shared/ui/button";
+import { Label } from "@/shared/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/shared/ui/select'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/select";
+import { Skeleton } from "@/shared/ui/skeleton";
 
-type MailingProviderState = ReturnType<typeof useMailingProvider>
+type MailingProviderState = ReturnType<typeof useMailingProvider>;
 
 interface MailingProviderFieldProps {
-  canEdit: boolean
-  providerState: MailingProviderState
-  onUpdated?: () => void
-  onError?: (message: string) => void
+  canEdit: boolean;
+  providerState: MailingProviderState;
+  onUpdated?: () => void;
+  onError?: (message: string) => void;
 }
 
 export function MailingProviderField({
@@ -36,21 +36,23 @@ export function MailingProviderField({
     isProvidersError,
     isSaving,
     saveProvider,
-  } = providerState
+  } = providerState;
 
   async function handleSaveProvider() {
     try {
-      await saveProvider()
-      onUpdated?.()
+      await saveProvider();
+      onUpdated?.();
     } catch (error) {
       onError?.(
-        error instanceof Error ? error.message : 'Не удалось сохранить провайдера',
-      )
+        error instanceof Error
+          ? error.message
+          : "Не удалось сохранить провайдера",
+      );
     }
   }
 
   if (isProvidersLoading) {
-    return <Skeleton className="h-9 w-full max-w-xs" />
+    return <Skeleton className="h-9 w-full max-w-xs" />;
   }
 
   if (isProvidersError) {
@@ -58,11 +60,13 @@ export function MailingProviderField({
       <p className="text-sm text-destructive">
         Не удалось загрузить список провайдеров
       </p>
-    )
+    );
   }
 
   if (providers.length === 0) {
-    return <p className="text-sm text-muted-foreground">Провайдеры не найдены</p>
+    return (
+      <p className="text-sm text-muted-foreground">Провайдеры не найдены</p>
+    );
   }
 
   if (!canEdit) {
@@ -75,7 +79,7 @@ export function MailingProviderField({
           </span>
         )}
       </p>
-    )
+    );
   }
 
   return (
@@ -108,5 +112,5 @@ export function MailingProviderField({
         Провайдер
       </Label>
     </div>
-  )
+  );
 }
