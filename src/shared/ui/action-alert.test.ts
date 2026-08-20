@@ -26,6 +26,14 @@ describe('getActionAlertContent', () => {
     })
   })
 
+  it('returns success content for created user', () => {
+    expect(getActionAlertContent('created', { entity: 'user' })).toMatchObject({
+      variant: 'success',
+      title: 'Создано',
+      description: 'Пользователь создан',
+    })
+  })
+
   it('returns error content with custom message', () => {
     expect(
       getActionAlertContent('error', { message: 'Конфликт статуса' }),

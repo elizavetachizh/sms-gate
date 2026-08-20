@@ -14,7 +14,7 @@ import { useActionAlert } from "@/shared/hooks/useActionAlert";
 import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
-const routeApi = getRouteApi("/templates");
+const routeApi = getRouteApi("/_authenticated/templates");
 
 export function TemplatesListPage() {
   const navigate = useNavigate({ from: "/templates" });

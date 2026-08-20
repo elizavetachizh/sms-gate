@@ -7,7 +7,6 @@ export const mailingsApi = {
   update: vi.fn(),
   send: vi.fn(),
   delete: vi.fn(),
-  ping: vi.fn(),
 };
 
 export const messagesApi = {
@@ -19,6 +18,13 @@ export const messagesApi = {
 
 export const meApi = {
   get: vi.fn(),
+};
+
+export const usersApi = {
+  list: vi.fn(),
+  create: vi.fn(),
+  getById: vi.fn(),
+  update: vi.fn(),
 };
 
 export const providersApi = {
@@ -54,5 +60,6 @@ vi.mock("@/shared/api", async (importOriginal) => {
     statsApi,
     templatesApi,
     messagesApi,
+    usersApi,
   };
 });

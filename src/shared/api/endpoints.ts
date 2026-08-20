@@ -1,5 +1,6 @@
 import { apiClient } from "./client.ts";
 import type {
+  BasicCredentials,
   MailingCreate,
   MailingCreateMessage,
   MailingListParams,
@@ -20,11 +21,32 @@ import type {
   SmsTextAnalyzeRequest,
   SmsTextAnalyzeResponse,
   TemplateListParams,
+  UserCreate,
+  UserListParams,
   UserRead,
+  UserUpdate,
 } from "./types.ts";
 
 export const meApi = {
-  get: () => apiClient.get<UserRead>("/auth/me/"),
+  get: (auth?: BasicCredentials) =>
+    apiClient.get<UserRead>(
+      "/users/me/",
+      undefined,
+      auth ? { auth } : undefined,
+    ),
+};
+
+export const usersApi = {
+  list: (params?: UserListParams) =>
+    apiClient.get<Page<UserRead>>("/users/", {
+      limit: params?.limit,
+      offset: params?.offset,
+    }),
+
+  create: (body: UserCreate) => apiClient.post<UserRead>("/users/", body),
+
+  update: (userId: string, body: UserUpdate) =>
+    apiClient.patch<UserRead>(`/users/${userId}/`, body),
 };
 
 export const providersApi = {
@@ -38,8 +60,6 @@ export const providersApi = {
 };
 
 export const mailingsApi = {
-  ping: () => apiClient.get<{ message: string }>("/mailings/ping"),
-
   list: (params?: MailingListParams) =>
     apiClient.get<Page<MailingRead>>("/mailings/", {
       status: params?.status,

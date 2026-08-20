@@ -22,7 +22,7 @@ import { useActionAlert } from "@/shared/hooks/useActionAlert";
 import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
-const routeApi = getRouteApi("/mailings");
+const routeApi = getRouteApi("/_authenticated/mailings");
 
 const STATUS_OPTIONS: { value: "all" | MailingStatus; label: string }[] = [
   { value: "all", label: "Все статусы" },

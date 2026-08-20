@@ -8,7 +8,7 @@ import { Button } from '@/shared/ui/button'
 import { Skeleton } from '@/shared/ui/skeleton'
 
 export function EditTemplatePage() {
-  const { templateId } = useParams({ from: '/templates/$templateId/edit' })
+  const { templateId } = useParams({ from: '/_authenticated/templates/$templateId/edit' })
   const { data: template, isLoading, isError, error, refetch } =
     useTemplateDetail(templateId)
 

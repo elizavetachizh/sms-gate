@@ -17,6 +17,13 @@ export class UnauthorizedError extends ApiError {
   }
 }
 
+export class ForbiddenError extends ApiError {
+  constructor() {
+    super(403, { detail: "Forbidden" });
+    this.name = "ForbiddenError";
+  }
+}
+
 export class BadRequestError extends ApiError {
   readonly detail: string;
 
@@ -90,6 +97,10 @@ export function isUnauthorizedError(
   error: unknown,
 ): error is UnauthorizedError {
   return error instanceof UnauthorizedError;
+}
+
+export function isForbiddenError(error: unknown): error is ForbiddenError {
+  return error instanceof ForbiddenError;
 }
 
 export function isBadRequestError(error: unknown): error is BadRequestError {

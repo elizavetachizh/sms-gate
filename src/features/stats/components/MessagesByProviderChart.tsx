@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -7,100 +7,89 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts'
+} from "recharts";
 import {
   type MessagesByProviderPivot,
   type MessagesByProviderSeries,
-} from '@/features/stats/lib/pivot-messages-by-provider'
-import type { MessageStatus } from '@/shared/api'
-import { cn } from '@/shared/lib/utils'
+} from "@/features/stats/lib/pivot-messages-by-provider";
+import { MESSAGE_STATUS_LABELS } from "@/shared/api";
+import { cn } from "@/shared/lib/utils";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 interface MessagesByProviderChartProps {
-  pivot: MessagesByProviderPivot | null
-  isLoading?: boolean
-  error?: unknown
-  className?: string
+  pivot: MessagesByProviderPivot | null;
+  isLoading?: boolean;
+  error?: unknown;
+  className?: string;
 }
 
 type ChartRow = {
-  date: string
-  total: number
-} & Record<string, string | number>
+  date: string;
+  total: number;
+} & Record<string, string | number>;
 
 interface ChartTooltipPayload {
-  color?: string
-  dataKey?: string | number
-  name?: string | number
-  value?: string | number
+  color?: string;
+  dataKey?: string | number;
+  name?: string | number;
+  value?: string | number;
 }
 
 interface ChartTooltipProps {
-  active?: boolean
-  label?: unknown
-  payload?: ChartTooltipPayload[]
-}
-
-const STATUS_LABELS: Record<MessageStatus, string> = {
-  created: 'Создано',
-  queued: 'В очереди',
-  submitted: 'Отправлено провайдеру',
-  delivered: 'Доставлено',
-  undelivered: 'Не доставлено',
-  failed: 'Ошибка',
-  unknown: 'Неизвестно',
+  active?: boolean;
+  label?: unknown;
+  payload?: ChartTooltipPayload[];
 }
 
 const CHART_COLORS = [
-  '#2563eb',
-  '#16a34a',
-  '#f59e0b',
-  '#dc2626',
-  '#7c3aed',
-  '#0891b2',
-  '#db2777',
-  '#65a30d',
-  '#ea580c',
-  '#4f46e5',
-]
+  "#2563eb",
+  "#16a34a",
+  "#f59e0b",
+  "#dc2626",
+  "#7c3aed",
+  "#0891b2",
+  "#db2777",
+  "#65a30d",
+  "#ea580c",
+  "#4f46e5",
+];
 
 function formatDateLabel(date: string): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-  }).format(new Date(`${date}T00:00:00`))
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 function formatFullDateLabel(date: string): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(`${date}T00:00:00`))
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 function getSeriesLabel(series: MessagesByProviderSeries): string {
-  return `${series.provider_name ?? series.provider_code} / ${STATUS_LABELS[series.status]}`
+  return `${series.provider_name ?? series.provider_code} / ${MESSAGE_STATUS_LABELS[series.status]}`;
 }
 
-function ChartTooltip({
-  active,
-  label,
-  payload,
-}: ChartTooltipProps) {
-  if (!active || !payload?.length || typeof label !== 'string') {
-    return null
+function ChartTooltip({ active, label, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length || typeof label !== "string") {
+    return null;
   }
 
-  const visiblePayload = payload.filter((item) => Number(item.value) > 0)
-  const total = visiblePayload.reduce((sum, item) => sum + Number(item.value ?? 0), 0)
+  const visiblePayload = payload.filter((item) => Number(item.value) > 0);
+  const total = visiblePayload.reduce(
+    (sum, item) => sum + Number(item.value ?? 0),
+    0,
+  );
 
   return (
     <div className="min-w-48 rounded-lg border bg-card p-3 text-sm shadow-md">
@@ -127,7 +116,7 @@ function ChartTooltip({
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function MessagesByProviderChart({
@@ -138,28 +127,28 @@ export function MessagesByProviderChart({
 }: MessagesByProviderChartProps) {
   const chartData = useMemo<ChartRow[]>(() => {
     if (!pivot) {
-      return []
+      return [];
     }
 
     return pivot.dates.map((date, index) => {
       const row: ChartRow = {
         date,
         total: pivot.totalsByDate[date] ?? 0,
-      }
+      };
 
       for (const series of pivot.series) {
-        row[series.key] = series.data[index] ?? 0
+        row[series.key] = series.data[index] ?? 0;
       }
 
-      return row
-    })
-  }, [pivot])
+      return row;
+    });
+  }, [pivot]);
 
-  const isError = Boolean(error)
-  const hasData = Boolean(pivot && pivot.total > 0)
+  const isError = Boolean(error);
+  const hasData = Boolean(pivot && pivot.total > 0);
 
   return (
-    <Card className={cn('overflow-hidden', className)}>
+    <Card className={cn("overflow-hidden", className)}>
       <CardHeader>
         <CardTitle>SMS по провайдерам</CardTitle>
         <CardDescription>
@@ -176,7 +165,7 @@ export function MessagesByProviderChart({
               Не удалось загрузить статистику
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+              {error instanceof Error ? error.message : "Неизвестная ошибка"}
             </p>
           </div>
         )}
@@ -193,7 +182,10 @@ export function MessagesByProviderChart({
           <div className="space-y-4">
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="date"
@@ -207,7 +199,10 @@ export function MessagesByProviderChart({
                     axisLine={false}
                     width={40}
                   />
-                  <Tooltip content={<ChartTooltip />} cursor={{ fill: 'hsl(var(--muted))' }} />
+                  <Tooltip
+                    content={<ChartTooltip />}
+                    cursor={{ fill: "hsl(var(--muted))" }}
+                  />
                   {pivot.series.map((series, index) => (
                     <Bar
                       key={series.key}
@@ -230,7 +225,10 @@ export function MessagesByProviderChart({
                 >
                   <span
                     className="size-2 rounded-full"
-                    style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    style={{
+                      backgroundColor:
+                        CHART_COLORS[index % CHART_COLORS.length],
+                    }}
                   />
                   <span>{getSeriesLabel(series)}</span>
                   <span className="text-muted-foreground tabular-nums">
@@ -243,5 +241,5 @@ export function MessagesByProviderChart({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

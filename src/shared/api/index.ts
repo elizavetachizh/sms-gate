@@ -1,13 +1,20 @@
 export { localizeConflictDetail } from "./conflict-messages.ts";
 export { apiClient, ApiClient, type RequestOptions } from "./client.ts";
-export { clearApiKey, getApiBaseUrl, getApiKey, setApiKey } from "./config.ts";
+export {
+  clearCredentials,
+  getApiBaseUrl,
+  getCredentials,
+  setCredentials,
+} from "./config.ts";
 export {
   ApiError,
   BadRequestError,
   ConflictError,
+  ForbiddenError,
   isApiError,
   isBadRequestError,
   isConflictError,
+  isForbiddenError,
   isNotFoundError,
   isUnauthorizedError,
   isValidationError,
@@ -24,9 +31,11 @@ export {
   servicesApi,
   statsApi,
   templatesApi,
+  usersApi,
 } from "./endpoints.ts";
 export type {
   ApiDetailError,
+  BasicCredentials,
   MailingCreate,
   MailingCreateMessage,
   MailingListParams,
@@ -48,8 +57,14 @@ export type {
   ProviderUpdate,
   SendMailingResponse,
   TemplateListParams,
+  UserCreate,
+  UserListParams,
   UserRead,
+  UserRole,
+  UserUpdate,
   SmsTextAnalyzeRequest,
   SmsTextAnalyzeResponse,
   SmsMessageEncoding,
 } from "./types.ts";
+
+export { MESSAGE_STATUS_LABELS } from "./types.ts";

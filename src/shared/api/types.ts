@@ -9,11 +9,50 @@ export type MessageStatus =
   | "failed"
   | "unknown";
 
+export const MESSAGE_STATUS_LABELS: Record<MessageStatus, string> = {
+  created: "Создано",
+  queued: "В очереди",
+  submitted: "Отправлено провайдеру",
+  delivered: "Доставлено",
+  undelivered: "Не доставлено",
+  failed: "Ошибка",
+  unknown: "Неизвестно",
+};
+
+export type UserRole = "user" | "admin";
+
+export interface BasicCredentials {
+  email: string;
+  password: string;
+}
+
 export interface UserRead {
   id: string;
   is_active: boolean;
   name: string;
   email: string;
+  role: UserRole;
+}
+
+export interface UserCreate {
+  email: string;
+  password: string;
+  name?: string;
+  role?: UserRole;
+  is_active?: boolean;
+}
+
+export interface UserUpdate {
+  email?: string;
+  password?: string;
+  name?: string;
+  role?: UserRole;
+  is_active?: boolean;
+}
+
+export interface UserListParams {
+  limit?: number;
+  offset?: number;
 }
 
 export interface MessageRead {
@@ -29,6 +68,7 @@ export interface MessageRead {
 export interface MailingRead {
   id: string;
   status: MailingStatus;
+  provider_code: string;
   messages: MessageRead[];
   created_by: UserRead;
   updated_by: UserRead;

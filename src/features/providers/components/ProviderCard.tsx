@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Loader2Icon } from "lucide-react";
+import { useMe } from "@/features/auth/hooks/useMe";
+import { isAdmin } from "@/features/auth/is-admin";
 import { useUpdateProvider } from "@/features/providers/hooks/useUpdateProvider";
 import { isValidationError } from "@/shared/api";
 import { mapValidationErrors } from "@/shared/api/map-validation-errors";
@@ -108,6 +110,8 @@ export function ProviderCard({
   updatingCode,
   onUpdate,
 }: ProviderCardProps) {
+  const { data: me } = useMe();
+  const canEdit = isAdmin(me);
   const [toggleError, setToggleError] = useState<string | null>(null);
 
   const isThisUpdating = isUpdating && updatingCode === provider.code;
@@ -158,28 +162,34 @@ export function ProviderCard({
           </div>
         </dl>
 
-        <ProviderNameEditor
-          key={provider.name}
-          provider={provider}
-          isThisUpdating={isThisUpdating}
-          onUpdate={onUpdate}
-        />
+        {canEdit && (
+          <>
+            <ProviderNameEditor
+              key={provider.name}
+              provider={provider}
+              isThisUpdating={isThisUpdating}
+              onUpdate={onUpdate}
+            />
 
-        <label className="flex cursor-pointer items-center gap-3 rounded-md border p-3">
-          <input
-            type="checkbox"
-            className="size-4 rounded border-input accent-primary"
-            checked={provider.is_enabled}
-            disabled={isThisUpdating}
-            onChange={(event) => void handleToggleEnabled(event.target.checked)}
-          />
-          <span className="text-sm leading-snug">
-            Доступен для новых рассылок
-          </span>
-        </label>
+            <label className="flex cursor-pointer items-center gap-3 rounded-md border p-3">
+              <input
+                type="checkbox"
+                className="size-4 rounded border-input accent-primary"
+                checked={provider.is_enabled}
+                disabled={isThisUpdating}
+                onChange={(event) =>
+                  void handleToggleEnabled(event.target.checked)
+                }
+              />
+              <span className="text-sm leading-snug">
+                Доступен для новых рассылок
+              </span>
+            </label>
 
-        {toggleError && (
-          <p className="text-sm text-destructive">{toggleError}</p>
+            {toggleError && (
+              <p className="text-sm text-destructive">{toggleError}</p>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

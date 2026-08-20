@@ -13,7 +13,7 @@ import { Button } from '@/shared/ui/button'
 
 export type ActionAlertType = 'created' | 'updated' | 'deleted' | 'error'
 
-export type ActionAlertEntity = 'message' | 'mailing' | 'template' | 'provider'
+export type ActionAlertEntity = 'message' | 'mailing' | 'template' | 'provider' | 'user'
 
 const ENTITY_MESSAGES: Record<
   ActionAlertEntity,
@@ -38,6 +38,11 @@ const ENTITY_MESSAGES: Record<
     created: 'Провайдер добавлен',
     updated: 'Провайдер обновлён',
     deleted: 'Провайдер удалён',
+  },
+  user: {
+    created: 'Пользователь создан',
+    updated: 'Пользователь обновлён',
+    deleted: 'Пользователь удалён',
   },
 }
 

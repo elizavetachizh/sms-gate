@@ -1,12 +1,14 @@
-import { getApiBaseUrl, getApiKey } from "./config.ts";
+import { getApiBaseUrl, getCredentials } from "./config.ts";
 import {
   ApiError,
   BadRequestError,
   ConflictError,
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
   ValidationError,
 } from "./errors.ts";
+import type { BasicCredentials } from "./types.ts";
 
 type QueryParamValue =
   | string
@@ -24,6 +26,8 @@ type QueryParams = Record<string, QueryParamValue>;
 export type RequestOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
   params?: QueryParams;
+  /** Override stored credentials, e.g. login probe before saving the session. */
+  auth?: BasicCredentials;
 };
 
 function buildUrl(baseUrl: string, path: string, params?: QueryParams): string {
@@ -51,20 +55,27 @@ function buildUrl(baseUrl: string, path: string, params?: QueryParams): string {
   return url.toString();
 }
 
+function toBasicAuthorization(credentials: BasicCredentials): string {
+  return `Basic ${btoa(`${credentials.email}:${credentials.password}`)}`;
+}
+
 export class ApiClient {
   private readonly baseUrl: string;
-  private readonly resolveApiKey: () => string | null;
+  private readonly resolveCredentials: () => BasicCredentials | null;
 
-  constructor(baseUrl: string, resolveApiKey: () => string | null) {
+  constructor(
+    baseUrl: string,
+    resolveCredentials: () => BasicCredentials | null,
+  ) {
     this.baseUrl = baseUrl;
-    this.resolveApiKey = resolveApiKey;
+    this.resolveCredentials = resolveCredentials;
   }
 
   async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-    const { body, params, headers, ...init } = options;
-    const apiKey = this.resolveApiKey();
+    const { body, params, headers, auth, ...init } = options;
+    const credentials = auth ?? this.resolveCredentials();
 
-    if (!apiKey) {
+    if (!credentials) {
       throw new UnauthorizedError();
     }
 
@@ -73,7 +84,7 @@ export class ApiClient {
       headers: {
         Accept: "application/json",
         ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
-        "X-API-Key": apiKey,
+        Authorization: toBasicAuthorization(credentials),
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -81,6 +92,10 @@ export class ApiClient {
 
     if (response.status === 401) {
       throw new UnauthorizedError();
+    }
+
+    if (response.status === 403) {
+      throw new ForbiddenError();
     }
 
     if (response.status === 400) {
@@ -153,4 +168,4 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(getApiBaseUrl(), getApiKey);
+export const apiClient = new ApiClient(getApiBaseUrl(), getCredentials);

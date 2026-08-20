@@ -1,15 +1,5 @@
-import type { MessageStatus } from "@/shared/api";
+import { MESSAGE_STATUS_LABELS, type MessageStatus } from "@/shared/api";
 import { Badge } from "@/shared/ui/badge";
-
-const STATUS_LABELS: Record<MessageStatus, string> = {
-  created: "Создано",
-  queued: "В очереди",
-  submitted: "Передано",
-  delivered: "Доставлено",
-  undelivered: "Не доставлено",
-  failed: "Ошибка",
-  unknown: "Неизвестно",
-};
 
 const STATUS_VARIANTS: Record<
   MessageStatus,
@@ -30,6 +20,8 @@ interface MessageStatusBadgeProps {
 
 export function MessageStatusBadge({ status }: MessageStatusBadgeProps) {
   return (
-    <Badge variant={STATUS_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
+    <Badge variant={STATUS_VARIANTS[status]}>
+      {MESSAGE_STATUS_LABELS[status]}
+    </Badge>
   );
 }

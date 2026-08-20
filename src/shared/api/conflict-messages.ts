@@ -5,6 +5,9 @@ const CONFLICT_DETAIL_MESSAGES: Record<string, string> = {
     'Рассылку можно удалить только в статусе «Создана»',
   'Message can be modified only in created status':
     'Сообщение можно изменить только в статусе «Создано»',
+  'Email already exists': 'Пользователь с таким email уже существует',
+  'Cannot demote or deactivate the last active admin':
+    'Нельзя понизить или деактивировать последнего активного администратора',
 }
 
 export function localizeConflictDetail(detail: string): string {

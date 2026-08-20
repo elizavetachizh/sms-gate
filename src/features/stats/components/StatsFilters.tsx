@@ -1,53 +1,49 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
-import { useProviders } from '@/features/providers/hooks/useProviders'
-import { messageStatusOrder } from '@/features/stats/lib/pivot-messages-by-provider'
+import { useState } from "react";
+import type { FormEvent } from "react";
+import { useProviders } from "@/features/providers/hooks/useProviders";
+import { messageStatusOrder } from "@/features/stats/lib/pivot-messages-by-provider";
 import {
   DEFAULT_STATS_FILL_GAPS,
   STATS_MAX_PERIOD_DAYS,
   getInclusiveDaysCount,
   isStatsDateRangeValid,
-} from '@/features/stats/lib/stats-date'
-import type { MessageStatus, MessagesByProviderStatsParams } from '@/shared/api'
-import { cn } from '@/shared/lib/utils'
-import { Button } from '@/shared/ui/button'
+} from "@/features/stats/lib/stats-date";
+import {
+  MESSAGE_STATUS_LABELS,
+  type MessageStatus,
+  type MessagesByProviderStatsParams,
+} from "@/shared/api";
+import { cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card'
-import { Input } from '@/shared/ui/input'
-import { Label } from '@/shared/ui/label'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/card";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Skeleton } from "@/shared/ui/skeleton";
 
 interface StatsFiltersProps {
-  value: MessagesByProviderStatsParams
-  onChange: (value: MessagesByProviderStatsParams) => void
-  className?: string
+  value: MessagesByProviderStatsParams;
+  onChange: (value: MessagesByProviderStatsParams) => void;
+  className?: string;
 }
 
 interface StatsFiltersDraft {
-  date_from: string
-  date_to: string
-  timezone: string
-  provider_code: string[]
-  status: MessageStatus[]
-  fill_gaps: boolean
+  date_from: string;
+  date_to: string;
+  timezone: string;
+  provider_code: string[];
+  status: MessageStatus[];
+  fill_gaps: boolean;
 }
 
-const STATUS_LABELS: Record<MessageStatus, string> = {
-  created: 'Создано',
-  queued: 'В очереди',
-  submitted: 'Отправлено провайдеру',
-  delivered: 'Доставлено',
-  undelivered: 'Не доставлено',
-  failed: 'Ошибка',
-  unknown: 'Неизвестно',
-}
-
-function paramsToDraft(params: MessagesByProviderStatsParams): StatsFiltersDraft {
+function paramsToDraft(
+  params: MessagesByProviderStatsParams,
+): StatsFiltersDraft {
   return {
     date_from: params.date_from,
     date_to: params.date_to,
@@ -55,46 +51,49 @@ function paramsToDraft(params: MessagesByProviderStatsParams): StatsFiltersDraft
     provider_code: params.provider_code ?? [],
     status: params.status ?? [],
     fill_gaps: params.fill_gaps ?? DEFAULT_STATS_FILL_GAPS,
-  }
+  };
 }
 
-function draftToParams(draft: StatsFiltersDraft): MessagesByProviderStatsParams {
+function draftToParams(
+  draft: StatsFiltersDraft,
+): MessagesByProviderStatsParams {
   return {
     date_from: draft.date_from,
     date_to: draft.date_to,
-    timezone: draft.timezone.trim() || 'UTC',
-    provider_code: draft.provider_code.length > 0 ? draft.provider_code : undefined,
+    timezone: draft.timezone.trim() || "UTC",
+    provider_code:
+      draft.provider_code.length > 0 ? draft.provider_code : undefined,
     status: draft.status.length > 0 ? draft.status : undefined,
     fill_gaps: draft.fill_gaps,
-  }
+  };
 }
 
 function toggleValue<T extends string>(values: T[], value: T): T[] {
   return values.includes(value)
     ? values.filter((item) => item !== value)
-    : [...values, value]
+    : [...values, value];
 }
 
 function getValidationError(draft: StatsFiltersDraft): string | null {
   if (!draft.date_from || !draft.date_to) {
-    return 'Укажите начало и конец периода'
+    return "Укажите начало и конец периода";
   }
 
   if (!isStatsDateRangeValid(draft.date_from, draft.date_to)) {
-    const daysCount = getInclusiveDaysCount(draft.date_from, draft.date_to)
+    const daysCount = getInclusiveDaysCount(draft.date_from, draft.date_to);
 
     if (daysCount < 1) {
-      return 'Дата окончания должна быть не раньше даты начала'
+      return "Дата окончания должна быть не раньше даты начала";
     }
 
-    return `Период не должен превышать ${STATS_MAX_PERIOD_DAYS} дней`
+    return `Период не должен превышать ${STATS_MAX_PERIOD_DAYS} дней`;
   }
 
   if (!draft.timezone.trim()) {
-    return 'Укажите timezone'
+    return "Укажите timezone";
   }
 
-  return null
+  return null;
 }
 
 export function StatsFilters({
@@ -104,23 +103,23 @@ export function StatsFilters({
 }: StatsFiltersProps) {
   const { data: providersData, isLoading: isProvidersLoading } = useProviders({
     enabled_only: false,
-  })
-  const [draft, setDraft] = useState(() => paramsToDraft(value))
-  const providers = providersData?.items ?? []
-  const validationError = getValidationError(draft)
+  });
+  const [draft, setDraft] = useState(() => paramsToDraft(value));
+  const providers = providersData?.items ?? [];
+  const validationError = getValidationError(draft);
 
   function updateDraft(patch: Partial<StatsFiltersDraft>) {
-    setDraft((current) => ({ ...current, ...patch }))
+    setDraft((current) => ({ ...current, ...patch }));
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
 
     if (validationError) {
-      return
+      return;
     }
 
-    onChange(draftToParams(draft))
+    onChange(draftToParams(draft));
   }
 
   return (
@@ -141,7 +140,9 @@ export function StatsFilters({
                 id="stats-date-from"
                 type="date"
                 value={draft.date_from}
-                onChange={(event) => updateDraft({ date_from: event.target.value })}
+                onChange={(event) =>
+                  updateDraft({ date_from: event.target.value })
+                }
               />
             </div>
 
@@ -151,17 +152,9 @@ export function StatsFilters({
                 id="stats-date-to"
                 type="date"
                 value={draft.date_to}
-                onChange={(event) => updateDraft({ date_to: event.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="stats-timezone">Timezone</Label>
-              <Input
-                id="stats-timezone"
-                value={draft.timezone}
-                placeholder="Europe/Minsk"
-                onChange={(event) => updateDraft({ timezone: event.target.value })}
+                onChange={(event) =>
+                  updateDraft({ date_to: event.target.value })
+                }
               />
             </div>
           </div>
@@ -235,7 +228,10 @@ export function StatsFilters({
 
               <div className="grid gap-2 sm:grid-cols-2">
                 {messageStatusOrder.map((status) => (
-                  <label key={status} className="flex items-center gap-2 text-sm">
+                  <label
+                    key={status}
+                    className="flex items-center gap-2 text-sm"
+                  >
                     <input
                       type="checkbox"
                       className="size-4 rounded border-input accent-primary"
@@ -246,22 +242,12 @@ export function StatsFilters({
                         })
                       }
                     />
-                    <span>{STATUS_LABELS[status]}</span>
+                    <span>{MESSAGE_STATUS_LABELS[status]}</span>
                   </label>
                 ))}
               </div>
             </fieldset>
           </div>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              className="size-4 rounded border-input accent-primary"
-              checked={draft.fill_gaps}
-              onChange={(event) => updateDraft({ fill_gaps: event.target.checked })}
-            />
-            <span>Заполнять пропущенные дни нулями</span>
-          </label>
 
           {validationError && (
             <p className="text-sm text-destructive">{validationError}</p>
@@ -275,5 +261,5 @@ export function StatsFilters({
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

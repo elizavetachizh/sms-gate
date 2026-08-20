@@ -2,7 +2,7 @@ import { Outlet } from "@tanstack/react-router";
 
 export function AppLayout() {
   return (
-    <main className="mx-auto max-w-6xl flex-1 px-4 py-8">
+    <main className="mx-auto w-full max-w-screen-xl flex-1 px-6 py-8">
       <Outlet />
     </main>
   );

@@ -1,17 +1,17 @@
 import {
   type MessagesByProviderPivot,
   type MessagesByProviderSeries,
-} from '@/features/stats/lib/pivot-messages-by-provider'
-import type { MessageStatus } from '@/shared/api'
-import { cn } from '@/shared/lib/utils'
+} from "@/features/stats/lib/pivot-messages-by-provider";
+import { MESSAGE_STATUS_LABELS } from "@/shared/api";
+import { cn } from "@/shared/lib/utils";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/ui/card'
-import { Skeleton } from '@/shared/ui/skeleton'
+} from "@/shared/ui/card";
+import { Skeleton } from "@/shared/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -19,35 +19,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/shared/ui/table'
+} from "@/shared/ui/table";
 
 interface MessagesByProviderTableProps {
-  pivot: MessagesByProviderPivot | null
-  isLoading?: boolean
-  error?: unknown
-  className?: string
-}
-
-const STATUS_LABELS: Record<MessageStatus, string> = {
-  created: 'Создано',
-  queued: 'В очереди',
-  submitted: 'Отправлено провайдеру',
-  delivered: 'Доставлено',
-  undelivered: 'Не доставлено',
-  failed: 'Ошибка',
-  unknown: 'Неизвестно',
+  pivot: MessagesByProviderPivot | null;
+  isLoading?: boolean;
+  error?: unknown;
+  className?: string;
 }
 
 function formatDateLabel(date: string): string {
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(`${date}T00:00:00`))
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 function getSeriesLabel(series: MessagesByProviderSeries): string {
-  return `${series.provider_name ?? series.provider_code} / ${STATUS_LABELS[series.status]}`
+  return `${series.provider_name ?? series.provider_code} / ${MESSAGE_STATUS_LABELS[series.status]}`;
 }
 
 export function MessagesByProviderTable({
@@ -56,11 +46,11 @@ export function MessagesByProviderTable({
   error,
   className,
 }: MessagesByProviderTableProps) {
-  const isError = Boolean(error)
-  const hasData = Boolean(pivot && pivot.total > 0)
+  const isError = Boolean(error);
+  const hasData = Boolean(pivot && pivot.total > 0);
 
   return (
-    <Card className={cn('overflow-hidden', className)}>
+    <Card className={cn("overflow-hidden", className)}>
       <CardHeader>
         <CardTitle>Детализация SMS</CardTitle>
         <CardDescription>
@@ -77,7 +67,7 @@ export function MessagesByProviderTable({
               Не удалось загрузить детализацию
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {error instanceof Error ? error.message : 'Неизвестная ошибка'}
+              {error instanceof Error ? error.message : "Неизвестная ошибка"}
             </p>
           </div>
         )}
@@ -94,7 +84,9 @@ export function MessagesByProviderTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 z-10 bg-card">Дата</TableHead>
+                <TableHead className="sticky left-0 z-10 bg-card">
+                  Дата
+                </TableHead>
                 {pivot.series.map((series) => (
                   <TableHead key={series.key} className="min-w-40 text-right">
                     {getSeriesLabel(series)}
@@ -111,7 +103,10 @@ export function MessagesByProviderTable({
                     {formatDateLabel(date)}
                   </TableCell>
                   {pivot.series.map((series) => (
-                    <TableCell key={series.key} className="text-right tabular-nums">
+                    <TableCell
+                      key={series.key}
+                      className="text-right tabular-nums"
+                    >
                       {series.data[dateIndex] ?? 0}
                     </TableCell>
                   ))}
@@ -142,5 +137,5 @@ export function MessagesByProviderTable({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

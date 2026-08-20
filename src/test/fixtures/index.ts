@@ -12,6 +12,15 @@ export const userFixture: UserRead = {
   is_active: true,
   name: '',
   email: 'user@example.com',
+  role: 'user',
+}
+
+export const adminFixture: UserRead = {
+  id: '550e8400-e29b-41d4-a716-446655440099',
+  is_active: true,
+  name: 'Admin',
+  email: 'admin@example.com',
+  role: 'admin',
 }
 
 export function messageFixture(overrides: Partial<MessageRead> = {}): MessageRead {
@@ -31,6 +40,7 @@ export function mailingFixture(overrides: Partial<MailingRead> = {}): MailingRea
   return {
     id: '660e8400-e29b-41d4-a716-446655440001',
     status: 'created',
+    provider_code: 'fake',
     messages: [messageFixture()],
     created_by: userFixture,
     updated_by: userFixture,
@@ -71,6 +81,17 @@ export function templateFixture(
 export function templatesPageFixture(
   items: MailingTemplateRead[] = [templateFixture()],
 ): Page<MailingTemplateRead> {
+  return {
+    total: items.length,
+    limit: 20,
+    offset: 0,
+    items,
+  }
+}
+
+export function usersPageFixture(
+  items: UserRead[] = [userFixture, adminFixture],
+): Page<UserRead> {
   return {
     total: items.length,
     limit: 20,

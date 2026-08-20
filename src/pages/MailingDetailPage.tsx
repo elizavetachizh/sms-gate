@@ -35,7 +35,9 @@ import { useActionAlert } from "@/shared/hooks/useActionAlert";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
 export function MailingDetailPage() {
-  const { mailingId } = useParams({ from: "/mailings/$mailingId" });
+  const { mailingId } = useParams({
+    from: "/_authenticated/mailings/$mailingId",
+  });
   const navigate = useNavigate();
   const [isCreateMessageOpen, setIsCreateMessageOpen] = useState(false);
   const [isDeleteMailingOpen, setIsDeleteMailingOpen] = useState(false);
@@ -50,7 +52,10 @@ export function MailingDetailPage() {
   } = useMailingDetail(mailingId);
   const sendMailing = useSendMailing(mailingId);
   const deleteMailing = useDeleteMailing();
-  const providerState = useMailingProvider(mailingId);
+  const providerState = useMailingProvider(
+    mailingId,
+    mailing?.provider_code ?? "",
+  );
 
   const isPolling =
     Boolean(mailing) &&
@@ -319,10 +324,7 @@ export function MailingDetailPage() {
           setActionAlert({
             action: "created",
             entity: "message",
-            message:
-              count === 1
-                ? undefined
-                : `Добавлено ${count} SMS`,
+            message: count === 1 ? undefined : `Добавлено ${count} SMS`,
           })
         }
       />

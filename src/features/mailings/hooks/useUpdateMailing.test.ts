@@ -30,25 +30,6 @@ describe("useUpdateMailing", () => {
     });
   });
 
-  it("clears messages with empty array", async () => {
-    const queryClient = createTestQueryClient();
-    const mailing = mailingFixture({ messages: [] });
-    vi.mocked(mailingsApi.update).mockResolvedValue(mailing);
-
-    const { result } = renderHook(() => useUpdateMailing(mailing.id), {
-      wrapper: createHookWrapper(queryClient),
-    });
-
-    await act(async () => {
-      await result.current.clearMessages("fake");
-    });
-
-    expect(mailingsApi.update).toHaveBeenCalledWith(mailing.id, {
-      provider_code: "fake",
-      messages: [],
-    });
-  });
-
   it("replaces messages with full array", async () => {
     const queryClient = createTestQueryClient();
     const mailing = mailingFixture();
