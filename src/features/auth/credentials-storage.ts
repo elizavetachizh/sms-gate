@@ -1,12 +1,37 @@
-import { getCredentials } from "@/shared/api/config.ts";
+import { z } from "zod";
+import type { BasicCredentials } from "@/shared/api/types.ts";
 
-export {
-  clearCredentials,
-  getCredentials,
-  setCredentials,
-} from "@/shared/api/config.ts";
-export type { BasicCredentials } from "@/shared/api/types.ts";
+const CREDENTIALS_STORAGE_KEY = "sms-gate-credentials";
 
-export function hasCredentials(): boolean {
-  return getCredentials() !== null;
+const credentialsSchema = z.object({
+  email: z.string().min(1),
+  password: z.string().min(1),
+});
+
+export function getCredentials(): BasicCredentials | null {
+  const raw = sessionStorage.getItem(CREDENTIALS_STORAGE_KEY);
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = credentialsSchema.safeParse(JSON.parse(raw));
+    if (!parsed.success) {
+      clearCredentials();
+      return null;
+    }
+
+    return parsed.data;
+  } catch {
+    clearCredentials();
+    return null;
+  }
+}
+
+export function setCredentials(credentials: BasicCredentials): void {
+  sessionStorage.setItem(CREDENTIALS_STORAGE_KEY, JSON.stringify(credentials));
+}
+
+export function clearCredentials(): void {
+  sessionStorage.removeItem(CREDENTIALS_STORAGE_KEY);
 }

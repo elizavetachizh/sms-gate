@@ -1,5 +1,4 @@
 import type { MessageRead } from "@/shared/api";
-import { formatDateTime, shortId } from "@/shared/lib/utils";
 import {
   Table,
   TableBody,
@@ -26,8 +25,6 @@ export function MailingMessagesTable({
           <TableHead>Номер</TableHead>
           <TableHead>Текст</TableHead>
           <TableHead>Статус</TableHead>
-          <TableHead>Отправка</TableHead>
-          <TableHead>External ID</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -48,24 +45,12 @@ export function MailingMessagesTable({
               <TableCell>
                 <MessageStatusBadge status={message.status} />
               </TableCell>
-              <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                {message.send_on ? formatDateTime(message.send_on) : "—"}
-              </TableCell>
-              <TableCell className="font-mono text-xs text-muted-foreground">
-                {message.external_id ? (
-                  <span title={message.external_id}>
-                    {shortId(message.external_id)}
-                  </span>
-                ) : (
-                  "—"
-                )}
-              </TableCell>
             </TableRow>
           ))
         ) : (
           <TableRow>
             <TableCell
-              colSpan={5}
+              colSpan={3}
               className="h-24 text-center text-muted-foreground"
             >
               Сообщений нет

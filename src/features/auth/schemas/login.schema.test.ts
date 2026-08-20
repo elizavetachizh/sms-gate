@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   LOGIN_PASSWORD_MAX_LENGTH,
-  LOGIN_PASSWORD_MIN_LENGTH,
   loginFormSchema,
 } from "./login.schema";
 
@@ -10,6 +9,15 @@ describe("loginFormSchema", () => {
     const result = loginFormSchema.safeParse({
       email: "user@example.com",
       password: "password123",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a short password so the API can reject it", () => {
+    const result = loginFormSchema.safeParse({
+      email: "user@example.com",
+      password: "short",
     });
 
     expect(result.success).toBe(true);
@@ -39,10 +47,10 @@ describe("loginFormSchema", () => {
     }
   });
 
-  it("rejects password shorter than 8 characters", () => {
+  it("rejects an empty password", () => {
     const result = loginFormSchema.safeParse({
       email: "user@example.com",
-      password: "a".repeat(LOGIN_PASSWORD_MIN_LENGTH - 1),
+      password: "",
     });
 
     expect(result.success).toBe(false);

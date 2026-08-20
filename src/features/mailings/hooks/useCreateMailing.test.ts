@@ -16,6 +16,7 @@ describe("useCreateMailing", () => {
     const queryClient = createTestQueryClient();
     const payload = {
       provider_code: "fake",
+      name: "Test mailing",
       messages: [{ msisdn: "375291234567", text: "Hello" }],
     };
     const mailing = mailingFixture();

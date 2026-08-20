@@ -5,49 +5,54 @@ import type {
   Page,
   ProviderListResponse,
   UserRead,
-} from '@/shared/api'
+} from "@/shared/api";
 
 export const userFixture: UserRead = {
-  id: '550e8400-e29b-41d4-a716-446655440000',
+  id: "550e8400-e29b-41d4-a716-446655440000",
   is_active: true,
-  name: '',
-  email: 'user@example.com',
-  role: 'user',
-}
+  name: "",
+  email: "user@example.com",
+  role: "user",
+};
 
 export const adminFixture: UserRead = {
-  id: '550e8400-e29b-41d4-a716-446655440099',
+  id: "550e8400-e29b-41d4-a716-446655440099",
   is_active: true,
-  name: 'Admin',
-  email: 'admin@example.com',
-  role: 'admin',
-}
+  name: "Admin",
+  email: "admin@example.com",
+  role: "admin",
+};
 
-export function messageFixture(overrides: Partial<MessageRead> = {}): MessageRead {
+export function messageFixture(
+  overrides: Partial<MessageRead> = {},
+): MessageRead {
   return {
-    id: '770e8400-e29b-41d4-a716-446655440002',
-    msisdn: '375291234567',
-    text: 'Привет!',
-    send_on: null,
+    id: "770e8400-e29b-41d4-a716-446655440002",
+    msisdn: "375291234567",
+    text: "Привет!",
     external_id: null,
-    status: 'created',
+    status: "created",
     batch_id: null,
     ...overrides,
-  }
+  };
 }
 
-export function mailingFixture(overrides: Partial<MailingRead> = {}): MailingRead {
+export function mailingFixture(
+  overrides: Partial<MailingRead> = {},
+): MailingRead {
   return {
-    id: '660e8400-e29b-41d4-a716-446655440001',
-    status: 'created',
-    provider_code: 'fake',
+    id: "660e8400-e29b-41d4-a716-446655440001",
+    name: "Test mailing",
+    status: "created",
+    provider_code: "fake",
+    send_on: null,
     messages: [messageFixture()],
     created_by: userFixture,
     updated_by: userFixture,
-    created_at: '2026-06-29T10:00:00+00:00',
-    updated_at: '2026-06-29T10:00:00+00:00',
+    created_at: "2026-06-29T10:00:00+00:00",
+    updated_at: "2026-06-29T10:00:00+00:00",
     ...overrides,
-  }
+  };
 }
 
 export function mailingsPageFixture(
@@ -60,22 +65,22 @@ export function mailingsPageFixture(
     offset: 0,
     items,
     ...overrides,
-  }
+  };
 }
 
 export function templateFixture(
   overrides: Partial<MailingTemplateRead> = {},
 ): MailingTemplateRead {
   return {
-    id: '880e8400-e29b-41d4-a716-446655440003',
-    name: 'Приветствие',
-    text: 'Здравствуйте!',
+    id: "880e8400-e29b-41d4-a716-446655440003",
+    name: "Приветствие",
+    text: "Здравствуйте!",
     created_by: userFixture,
     updated_by: userFixture,
-    created_at: '2026-06-29T10:00:00+00:00',
-    updated_at: '2026-06-29T10:00:00+00:00',
+    created_at: "2026-06-29T10:00:00+00:00",
+    updated_at: "2026-06-29T10:00:00+00:00",
     ...overrides,
-  }
+  };
 }
 
 export function templatesPageFixture(
@@ -86,7 +91,7 @@ export function templatesPageFixture(
     limit: 20,
     offset: 0,
     items,
-  }
+  };
 }
 
 export function usersPageFixture(
@@ -97,16 +102,16 @@ export function usersPageFixture(
     limit: 20,
     offset: 0,
     items,
-  }
+  };
 }
 
 export const providersListFixture: ProviderListResponse = {
   items: [
     {
-      code: 'fake',
-      name: 'Fake provider',
+      code: "fake",
+      name: "Fake provider",
       is_enabled: true,
       max_batch_size: 100,
     },
   ],
-}
+};

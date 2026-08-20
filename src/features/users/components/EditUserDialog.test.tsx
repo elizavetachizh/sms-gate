@@ -25,9 +25,10 @@ describe("EditUserDialog", () => {
     );
 
     expect(screen.getByRole("button", { name: "Сохранить" })).toBeDisabled();
+    expect(screen.queryByLabelText(/Новый пароль/)).not.toBeInTheDocument();
   });
 
-  it("sends only changed fields on PATCH", async () => {
+  it("sends only changed profile fields on PATCH", async () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn();
     const onSuccess = vi.fn();
@@ -44,7 +45,7 @@ describe("EditUserDialog", () => {
       { wrapper: createHookWrapper() },
     );
 
-    await user.type(screen.getByLabelText(/Имя/), "Updated");
+    await user.type(screen.getByLabelText("Имя"), "Updated");
     await user.click(screen.getByRole("button", { name: "Сохранить" }));
 
     await waitFor(() => {
@@ -68,7 +69,10 @@ describe("EditUserDialog", () => {
       { wrapper: createHookWrapper() },
     );
 
-    await user.click(screen.getByLabelText("Активен"));
+    await user.click(screen.getByLabelText("Учётная запись активна"));
+    expect(
+      screen.getByText("После сохранения этот пользователь не сможет войти."),
+    ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Сохранить" }));
 
     await waitFor(() => {
@@ -93,7 +97,7 @@ describe("EditUserDialog", () => {
       { wrapper: createHookWrapper() },
     );
 
-    await user.click(screen.getByLabelText("Активен"));
+    await user.click(screen.getByLabelText("Учётная запись активна"));
     await user.click(screen.getByRole("button", { name: "Сохранить" }));
 
     expect(

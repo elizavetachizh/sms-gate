@@ -36,7 +36,7 @@ describe("useLogin", () => {
     expect(queryClient.getQueryData(authKeys.me)).toEqual(userFixture);
   });
 
-  it("does not save credentials on 401", async () => {
+  it("does not save credentials on 401 (wrong password or inactive user)", async () => {
     vi.mocked(meApi.get).mockRejectedValue(new UnauthorizedError());
 
     const { result } = renderHook(() => useLogin(), {

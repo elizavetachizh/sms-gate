@@ -1,5 +1,3 @@
-export type MailingStatus = "created" | "queued" | "submitted";
-
 export type MessageStatus =
   | "created"
   | "queued"
@@ -9,10 +7,22 @@ export type MessageStatus =
   | "failed"
   | "unknown";
 
+export type MailingStatus = MessageStatus;
+
 export const MESSAGE_STATUS_LABELS: Record<MessageStatus, string> = {
   created: "Создано",
   queued: "В очереди",
   submitted: "Отправлено провайдеру",
+  delivered: "Доставлено",
+  undelivered: "Не доставлено",
+  failed: "Ошибка",
+  unknown: "Неизвестно",
+};
+
+export const MAILING_STATUS_LABELS: Record<MailingStatus, string> = {
+  created: "Создана",
+  queued: "В очереди",
+  submitted: "Отправлена",
   delivered: "Доставлено",
   undelivered: "Не доставлено",
   failed: "Ошибка",
@@ -59,7 +69,6 @@ export interface MessageRead {
   id: string;
   msisdn: string;
   text: string;
-  send_on: string | null;
   external_id: string | null;
   status: MessageStatus;
   batch_id: string | null;
@@ -67,8 +76,10 @@ export interface MessageRead {
 
 export interface MailingRead {
   id: string;
+  name: string;
   status: MailingStatus;
   provider_code: string;
+  send_on: string | null;
   messages: MessageRead[];
   created_by: UserRead;
   updated_by: UserRead;
@@ -79,16 +90,19 @@ export interface MailingRead {
 export interface MailingCreateMessage {
   msisdn: string;
   text: string;
-  send_on?: string | null;
 }
 
 export interface MailingCreate {
   provider_code: string;
+  name: string;
+  send_on?: string | null;
   messages: MailingCreateMessage[];
 }
 
 export interface MailingUpdate {
   provider_code?: string;
+  name?: string;
+  send_on?: string | null;
   messages?: MailingCreateMessage[];
 }
 

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useMe } from "@/features/auth/hooks/useMe";
+import { isAdmin } from "@/features/auth/is-admin";
 import { ProviderCard } from "@/features/providers/components/ProviderCard";
 import { useProviders } from "@/features/providers/hooks/useProviders";
 import { useUpdateProvider } from "@/features/providers/hooks/useUpdateProvider";
@@ -6,11 +8,13 @@ import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
 export function ProvidersListPage() {
+  const { data: me } = useMe();
   const { data, isLoading, isError, error, refetch } = useProviders({
     enabled_only: false,
   });
   const updateProvider = useUpdateProvider();
   const [updatingCode, setUpdatingCode] = useState<string | null>(null);
+  const canEdit = isAdmin(me);
 
   const providers = data?.items ?? [];
 
@@ -60,6 +64,7 @@ export function ProvidersListPage() {
             <ProviderCard
               key={provider.code}
               provider={provider}
+              canEdit={canEdit}
               isUpdating={updateProvider.isPending}
               updatingCode={updatingCode}
               onUpdate={handleUpdate}

@@ -1,25 +1,26 @@
-import type { MailingStatus } from "@/shared/api";
+import { MAILING_STATUS_LABELS, type MailingStatus } from "@/shared/api";
 import { Badge } from "@/shared/ui/badge";
 
-const STATUS_LABELS: Record<MailingStatus, string> = {
-  created: "Создана",
-  queued: "В очереди",
-  submitted: "Отправлена",
+const STATUS_VARIANTS: Record<
+  MailingStatus,
+  "muted" | "warning" | "success" | "secondary" | "outline"
+> = {
+  created: "muted",
+  queued: "warning",
+  submitted: "warning",
+  delivered: "success",
+  undelivered: "secondary",
+  failed: "outline",
+  unknown: "muted",
 };
-
-const STATUS_VARIANTS: Record<MailingStatus, "muted" | "warning" | "success"> =
-  {
-    created: "muted",
-    queued: "warning",
-    submitted: "success",
-  };
 
 interface MailingStatusBadgeProps {
   status: MailingStatus;
 }
 
 export function MailingStatusBadge({ status }: MailingStatusBadgeProps) {
-  return (
-    <Badge variant={STATUS_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
-  );
+  const label = MAILING_STATUS_LABELS[status] ?? status;
+  const variant = STATUS_VARIANTS[status] ?? "muted";
+
+  return <Badge variant={variant}>{label}</Badge>;
 }

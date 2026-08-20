@@ -30,6 +30,30 @@ describe("useUpdateMailing", () => {
     });
   });
 
+  it("updates send_on without messages key", async () => {
+    const queryClient = createTestQueryClient();
+    const mailing = mailingFixture();
+    vi.mocked(mailingsApi.update).mockResolvedValue(mailing);
+
+    const { result } = renderHook(() => useUpdateMailing(mailing.id), {
+      wrapper: createHookWrapper(queryClient),
+    });
+
+    await act(async () => {
+      await result.current.updateSendOn(
+        "fake",
+        mailing.name,
+        "2026-08-20T12:30:00.000Z",
+      );
+    });
+
+    expect(mailingsApi.update).toHaveBeenCalledWith(mailing.id, {
+      provider_code: "fake",
+      name: mailing.name,
+      send_on: "2026-08-20T12:30:00.000Z",
+    });
+  });
+
   it("replaces messages with full array", async () => {
     const queryClient = createTestQueryClient();
     const mailing = mailingFixture();

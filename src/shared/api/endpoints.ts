@@ -27,6 +27,8 @@ import type {
   UserUpdate,
 } from "./types.ts";
 
+// Trailing slashes match OpenAPI as-is. Do not "normalize" them — a FastAPI 307
+// on mismatch can drop the Authorization header.
 export const meApi = {
   get: (auth?: BasicCredentials) =>
     apiClient.get<UserRead>(

@@ -1,4 +1,5 @@
-import { getApiBaseUrl, getCredentials } from "./config.ts";
+import { getCredentials } from "@/features/auth/credentials-storage";
+import { getApiBaseUrl } from "./config.ts";
 import {
   ApiError,
   BadRequestError,

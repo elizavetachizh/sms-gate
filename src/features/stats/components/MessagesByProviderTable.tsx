@@ -1,8 +1,8 @@
 import {
-  type MessagesByProviderPivot,
-  type MessagesByProviderSeries,
-} from "@/features/stats/lib/pivot-messages-by-provider";
-import { MESSAGE_STATUS_LABELS } from "@/shared/api";
+  formatFullDateLabel,
+  getSeriesLabel,
+} from "@/features/stats/lib/format-stats";
+import type { MessagesByProviderPivot } from "@/features/stats/lib/pivot-messages-by-provider";
 import { cn } from "@/shared/lib/utils";
 import {
   Card,
@@ -26,18 +26,6 @@ interface MessagesByProviderTableProps {
   isLoading?: boolean;
   error?: unknown;
   className?: string;
-}
-
-function formatDateLabel(date: string): string {
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${date}T00:00:00`));
-}
-
-function getSeriesLabel(series: MessagesByProviderSeries): string {
-  return `${series.provider_name ?? series.provider_code} / ${MESSAGE_STATUS_LABELS[series.status]}`;
 }
 
 export function MessagesByProviderTable({
@@ -100,7 +88,7 @@ export function MessagesByProviderTable({
               {pivot.dates.map((date, dateIndex) => (
                 <TableRow key={date}>
                   <TableCell className="sticky left-0 z-10 bg-card font-medium">
-                    {formatDateLabel(date)}
+                    {formatFullDateLabel(date)}
                   </TableCell>
                   {pivot.series.map((series) => (
                     <TableCell

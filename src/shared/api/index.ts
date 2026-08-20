@@ -1,11 +1,6 @@
 export { localizeConflictDetail } from "./conflict-messages.ts";
 export { apiClient, ApiClient, type RequestOptions } from "./client.ts";
-export {
-  clearCredentials,
-  getApiBaseUrl,
-  getCredentials,
-  setCredentials,
-} from "./config.ts";
+export { getApiBaseUrl } from "./config.ts";
 export {
   ApiError,
   BadRequestError,
@@ -67,4 +62,4 @@ export type {
   SmsMessageEncoding,
 } from "./types.ts";
 
-export { MESSAGE_STATUS_LABELS } from "./types.ts";
+export { MAILING_STATUS_LABELS, MESSAGE_STATUS_LABELS } from "./types.ts";

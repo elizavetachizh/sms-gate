@@ -16,6 +16,7 @@ export function useLogin() {
   return useMutation({
     mutationFn: async (credentials: BasicCredentials) => {
       try {
+        // Inactive users are 401 from GET /users/me/ — same as a bad password.
         const user = await meApi.get(credentials);
         setCredentials(credentials);
         return user;

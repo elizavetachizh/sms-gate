@@ -7,10 +7,17 @@ import { UsersTable } from "./UsersTable";
 describe("UsersTable", () => {
   it("renders name, email, role, status and an edit action", async () => {
     const onEdit = vi.fn();
+    const onChangePassword = vi.fn();
     const user = userEvent.setup();
     const namedUser = { ...userFixture, name: "Иван" };
 
-    render(<UsersTable users={[namedUser, adminFixture]} onEdit={onEdit} />);
+    render(
+      <UsersTable
+        users={[namedUser, adminFixture]}
+        onEdit={onEdit}
+        onChangePassword={onChangePassword}
+      />,
+    );
 
     expect(screen.getByText("Иван")).toBeInTheDocument();
     expect(screen.getByText(userFixture.email)).toBeInTheDocument();
@@ -28,8 +35,31 @@ describe("UsersTable", () => {
     expect(onEdit).toHaveBeenCalledWith(namedUser);
   });
 
+  it("opens change password from the row action", async () => {
+    const onChangePassword = vi.fn();
+    const user = userEvent.setup();
+
+    render(
+      <UsersTable
+        users={[userFixture]}
+        onEdit={vi.fn()}
+        onChangePassword={onChangePassword}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Сменить пароль" }));
+
+    expect(onChangePassword).toHaveBeenCalledWith(userFixture);
+  });
+
   it("shows a dash when the name is empty", () => {
-    render(<UsersTable users={[userFixture]} onEdit={vi.fn()} />);
+    render(
+      <UsersTable
+        users={[userFixture]}
+        onEdit={vi.fn()}
+        onChangePassword={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText("—")).toBeInTheDocument();
   });
@@ -39,6 +69,7 @@ describe("UsersTable", () => {
       <UsersTable
         users={[{ ...userFixture, is_active: false }]}
         onEdit={vi.fn()}
+        onChangePassword={vi.fn()}
       />,
     );
 
@@ -46,7 +77,9 @@ describe("UsersTable", () => {
   });
 
   it("shows empty state", () => {
-    render(<UsersTable users={[]} onEdit={vi.fn()} />);
+    render(
+      <UsersTable users={[]} onEdit={vi.fn()} onChangePassword={vi.fn()} />,
+    );
 
     expect(screen.getByText("Пользователи не найдены")).toBeInTheDocument();
   });

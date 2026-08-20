@@ -13,7 +13,7 @@ import {
   Trash2Icon,
 } from "lucide-react";
 import type { MailingRead } from "@/shared/api";
-import { cn, formatDateTime, shortId } from "@/shared/lib/utils";
+import { cn, formatDateTime } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { buttonVariants } from "@/shared/ui/button-variants";
 import {
@@ -72,6 +72,11 @@ const columns: ColumnDef<MailingRead>[] = [
     },
   },
   {
+    accessorKey: "name",
+    header: "Наименование",
+    cell: ({ row }) => row.original.name,
+  },
+  {
     accessorKey: "created_at",
     header: "Создана",
     cell: ({ row }) => formatDateTime(row.original.created_at),
@@ -117,15 +122,7 @@ const columns: ColumnDef<MailingRead>[] = [
       </span>
     ),
   },
-  {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => (
-      <code className="rounded bg-muted px-1.5 py-0.5 text-xs">
-        {shortId(row.original.id)}
-      </code>
-    ),
-  },
+
   {
     id: "actions",
     header: () => <span className="sr-only">Действия</span>,

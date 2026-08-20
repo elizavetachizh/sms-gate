@@ -1,15 +1,13 @@
-import {
-  MutationCache,
-  QueryCache,
-  QueryClient,
-  QueryClientProvider,
-} from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { onUnauthorizedError, toInternalRedirect } from "@/features/auth/session";
-import { isUnauthorizedError } from "@/shared/api";
+import {
+  onUnauthorizedError,
+  toInternalRedirect,
+} from "@/features/auth/session";
+import { queryClient, registerQueryCacheErrorHandler } from "./query-client";
 import { router } from "./router";
 
-function handleUnauthorized(error: unknown) {
+registerQueryCacheErrorHandler((error) => {
   onUnauthorizedError(
     error,
     queryClient,
@@ -25,28 +23,6 @@ function handleUnauthorized(error: unknown) {
       });
     },
   );
-}
-
-const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: handleUnauthorized,
-  }),
-  mutationCache: new MutationCache({
-    onError: handleUnauthorized,
-  }),
-  defaultOptions: {
-    queries: {
-      staleTime: 30_000,
-      refetchOnWindowFocus: import.meta.env.PROD,
-      retry: (failureCount, error) => {
-        if (isUnauthorizedError(error)) return false;
-        return failureCount < 2;
-      },
-    },
-    mutations: {
-      retry: false,
-    },
-  },
 });
 
 interface AppProvidersProps {

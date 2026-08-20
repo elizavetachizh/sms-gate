@@ -21,6 +21,11 @@ export function useUpdateMailing(mailingId: string) {
     ...mutation,
     updateProvider: (provider_code: string) =>
       mutation.mutateAsync({ provider_code }),
+    updateSendOn: (
+      provider_code: string,
+      name: string,
+      send_on: string | null,
+    ) => mutation.mutateAsync({ provider_code, name, send_on }),
     replaceMessages: (
       provider_code: string,
       messages: MailingCreateMessage[],

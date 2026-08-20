@@ -12,7 +12,21 @@ export const messageCreateSchema = z.object({
   text: z.string(),
 });
 
-const mailingMessagesFormBaseSchema = z.object({
+const sendOnSchema = z
+  .string()
+  .optional()
+  .refine(
+    (value) => {
+      if (!value || value.trim() === "") {
+        return true;
+      }
+
+      return !Number.isNaN(new Date(value).getTime());
+    },
+    { message: "Укажите корректную дату и время" },
+  );
+
+const mailingMessagesEditorBaseSchema = z.object({
   text_mode: z.enum(mailingTextModes),
   shared_text: z.string(),
   messages: z
@@ -23,7 +37,7 @@ const mailingMessagesFormBaseSchema = z.object({
 function refineMailingMessagesForm<T extends z.ZodTypeAny>(schema: T) {
   return schema.superRefine((data, ctx) => {
     const { text_mode, shared_text, messages } = data as z.infer<
-      typeof mailingMessagesFormBaseSchema
+      typeof mailingMessagesEditorBaseSchema
     >;
 
     if (text_mode === "same") {
@@ -38,11 +52,13 @@ function refineMailingMessagesForm<T extends z.ZodTypeAny>(schema: T) {
 }
 
 export const mailingReplaceSchema = refineMailingMessagesForm(
-  mailingMessagesFormBaseSchema,
+  mailingMessagesEditorBaseSchema,
 );
 
 export const mailingCreateSchema = refineMailingMessagesForm(
-  mailingMessagesFormBaseSchema.extend({
+  mailingMessagesEditorBaseSchema.extend({
+    name: z.string().min(1, "Укажите наименование рассылки"),
+    send_on: sendOnSchema,
     provider_code: z.string().min(1, "Выберите провайдера"),
   }),
 );
@@ -63,7 +79,9 @@ export const defaultMailingReplaceFormValues: MailingReplaceFormValues = {
 };
 
 export const defaultMailingFormValues: MailingCreateFormValues = {
+  name: "",
   provider_code: "",
+  send_on: "",
   text_mode: "same",
   shared_text: "",
   messages: [defaultMessageValues],

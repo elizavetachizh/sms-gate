@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { MailingsTable } from "@/features/mailings/components/MailingsTable";
 import { useDeleteMailing } from "@/features/mailings/hooks/useDeleteMailing";
 import { useMailingsList } from "@/features/mailings/hooks/useMailingsList";
-import type { MailingRead, MailingStatus } from "@/shared/api";
+import {
+  MAILING_STATUS_LABELS,
+  type MailingRead,
+  type MailingStatus,
+} from "@/shared/api";
 import { getMutationErrorMessage } from "@/shared/lib/mutation-error";
 import { shortId } from "@/shared/lib/utils";
 import { ActionAlert } from "@/shared/ui/action-alert";
@@ -19,6 +23,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { useActionAlert } from "@/shared/hooks/useActionAlert";
+import { usePageSearch } from "@/shared/hooks/usePageSearch";
 import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
@@ -26,13 +31,13 @@ const routeApi = getRouteApi("/_authenticated/mailings");
 
 const STATUS_OPTIONS: { value: "all" | MailingStatus; label: string }[] = [
   { value: "all", label: "Все статусы" },
-  { value: "created", label: "Создана" },
-  { value: "queued", label: "В очереди" },
-  { value: "submitted", label: "Отправлена" },
+  ...(Object.entries(MAILING_STATUS_LABELS) as [MailingStatus, string][]).map(
+    ([value, label]) => ({ value, label }),
+  ),
 ];
 
 export function MailingsListPage() {
-  const navigate = useNavigate({ from: "/mailings" });
+  const { updateSearch } = usePageSearch("/mailings");
   const { status, limit, offset } = routeApi.useSearch();
   const listParams = { status, limit, offset };
 
@@ -45,20 +50,6 @@ export function MailingsListPage() {
   const { actionAlert, setActionAlert } = useActionAlert();
 
   const statusFilter = status ?? "all";
-
-  function updateSearch(next: {
-    status?: MailingStatus | undefined;
-    offset?: number;
-    limit?: number;
-  }) {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        ...next,
-        offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
-      }),
-    });
-  }
 
   function handleStatusChange(value: string) {
     updateSearch({
@@ -162,9 +153,7 @@ export function MailingsListPage() {
             onOffsetChange={(nextOffset) =>
               updateSearch({ offset: nextOffset })
             }
-            onLimitChange={(nextLimit) =>
-              updateSearch({ limit: nextLimit, offset: 0 })
-            }
+            onLimitChange={(nextLimit) => updateSearch({ limit: nextLimit })}
           />
         </>
       )}

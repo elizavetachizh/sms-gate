@@ -4,7 +4,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { PencilIcon } from "lucide-react";
+import { KeyRoundIcon, PencilIcon } from "lucide-react";
 import type { UserRead } from "@/shared/api";
 import { Badge } from "@/shared/ui/badge";
 import { Button } from "@/shared/ui/button";
@@ -21,6 +21,7 @@ import { USER_ROLE_LABELS } from "../schemas/user.schema";
 interface UsersTableProps {
   users: UserRead[];
   onEdit: (user: UserRead) => void;
+  onChangePassword: (user: UserRead) => void;
 }
 
 const columns: ColumnDef<UserRead>[] = [
@@ -58,15 +59,25 @@ const columns: ColumnDef<UserRead>[] = [
     id: "actions",
     header: () => <span className="sr-only">Действия</span>,
     cell: ({ row, table }) => {
-      const { onEdit } = table.options.meta as UsersTableMeta;
+      const { onEdit, onChangePassword } = table.options.meta as UsersTableMeta;
 
       return (
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-1">
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onEdit(row.original)}
+            title="Сменить пароль"
+            aria-label="Сменить пароль"
+            onClick={() => onChangePassword(row.original)}
+          >
+            <KeyRoundIcon />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Изменить пользователя"
             aria-label="Изменить пользователя"
+            onClick={() => onEdit(row.original)}
           >
             <PencilIcon />
           </Button>
@@ -78,14 +89,19 @@ const columns: ColumnDef<UserRead>[] = [
 
 interface UsersTableMeta {
   onEdit: (user: UserRead) => void;
+  onChangePassword: (user: UserRead) => void;
 }
 
-export function UsersTable({ users, onEdit }: UsersTableProps) {
+export function UsersTable({
+  users,
+  onEdit,
+  onChangePassword,
+}: UsersTableProps) {
   const table = useReactTable({
     data: users,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    meta: { onEdit } satisfies UsersTableMeta,
+    meta: { onEdit, onChangePassword } satisfies UsersTableMeta,
   });
 
   return (

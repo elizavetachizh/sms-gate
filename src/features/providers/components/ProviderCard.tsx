@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Loader2Icon } from "lucide-react";
-import { useMe } from "@/features/auth/hooks/useMe";
-import { isAdmin } from "@/features/auth/is-admin";
 import { useUpdateProvider } from "@/features/providers/hooks/useUpdateProvider";
 import { isValidationError } from "@/shared/api";
 import { mapValidationErrors } from "@/shared/api/map-validation-errors";
@@ -21,6 +19,7 @@ import { Label } from "@/shared/ui/label";
 
 interface ProviderCardProps {
   provider: ProviderRead;
+  canEdit: boolean;
   isUpdating: boolean;
   updatingCode: string | null;
   onUpdate: ReturnType<typeof useUpdateProvider>["mutateAsync"];
@@ -106,12 +105,11 @@ function ProviderNameEditor({
 
 export function ProviderCard({
   provider,
+  canEdit,
   isUpdating,
   updatingCode,
   onUpdate,
 }: ProviderCardProps) {
-  const { data: me } = useMe();
-  const canEdit = isAdmin(me);
   const [toggleError, setToggleError] = useState<string | null>(null);
 
   const isThisUpdating = isUpdating && updatingCode === provider.code;

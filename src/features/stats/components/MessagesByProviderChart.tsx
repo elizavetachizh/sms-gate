@@ -9,10 +9,11 @@ import {
   YAxis,
 } from "recharts";
 import {
-  type MessagesByProviderPivot,
-  type MessagesByProviderSeries,
-} from "@/features/stats/lib/pivot-messages-by-provider";
-import { MESSAGE_STATUS_LABELS } from "@/shared/api";
+  formatDateLabel,
+  formatFullDateLabel,
+  getSeriesLabel,
+} from "@/features/stats/lib/format-stats";
+import type { MessagesByProviderPivot } from "@/features/stats/lib/pivot-messages-by-provider";
 import { cn } from "@/shared/lib/utils";
 import {
   Card,
@@ -60,25 +61,6 @@ const CHART_COLORS = [
   "#ea580c",
   "#4f46e5",
 ];
-
-function formatDateLabel(date: string): string {
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-  }).format(new Date(`${date}T00:00:00`));
-}
-
-function formatFullDateLabel(date: string): string {
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(`${date}T00:00:00`));
-}
-
-function getSeriesLabel(series: MessagesByProviderSeries): string {
-  return `${series.provider_name ?? series.provider_code} / ${MESSAGE_STATUS_LABELS[series.status]}`;
-}
 
 function ChartTooltip({ active, label, payload }: ChartTooltipProps) {
   if (!active || !payload?.length || typeof label !== "string") {

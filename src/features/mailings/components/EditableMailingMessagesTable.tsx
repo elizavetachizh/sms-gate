@@ -11,7 +11,7 @@ import type { MessageRead } from "@/shared/api";
 import { isConflictError, localizeConflictDetail } from "@/shared/api";
 import { formatBelarusPhone } from "@/shared/lib/belarus-phone";
 import { getMutationErrorMessage } from "@/shared/lib/mutation-error";
-import { formatDateTime, shortId } from "@/shared/lib/utils";
+import { shortId } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
@@ -156,7 +156,7 @@ export function EditableMailingMessagesTable({
     }
   }
 
-  const columnCount = canEdit ? 7 : 5;
+  const columnCount = canEdit ? 6 : 4;
 
   return (
     <>
@@ -203,7 +203,6 @@ export function EditableMailingMessagesTable({
             <TableHead>Номер</TableHead>
             <TableHead>Текст</TableHead>
             <TableHead>Статус</TableHead>
-            <TableHead>Отправка</TableHead>
             <TableHead>External ID</TableHead>
             {canEdit && <TableHead>Действия</TableHead>}
           </TableRow>
@@ -251,9 +250,6 @@ export function EditableMailingMessagesTable({
                   </TableCell>
                   <TableCell>
                     <MessageStatusBadge status={message.status} />
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                    {message.send_on ? formatDateTime(message.send_on) : "—"}
                   </TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">
                     {message.external_id ? (

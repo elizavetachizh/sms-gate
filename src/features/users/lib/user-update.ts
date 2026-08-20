@@ -4,7 +4,6 @@ import type { UserEditFormValues } from "../schemas/user.schema";
 export function toUserEditFormValues(user: UserRead): UserEditFormValues {
   return {
     email: user.email,
-    password: "",
     name: user.name,
     role: user.role,
     is_active: user.is_active,
@@ -19,10 +18,6 @@ export function buildUserUpdatePayload(
 
   if (values.email !== original.email) {
     payload.email = values.email;
-  }
-
-  if (values.password !== "") {
-    payload.password = values.password;
   }
 
   if (values.name !== original.name) {

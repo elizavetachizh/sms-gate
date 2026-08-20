@@ -3,10 +3,9 @@ import { userFixture } from "@/test/fixtures";
 import { buildUserUpdatePayload, toUserEditFormValues } from "./user-update";
 
 describe("toUserEditFormValues", () => {
-  it("leaves password empty", () => {
+  it("maps account fields without a password", () => {
     expect(toUserEditFormValues(userFixture)).toEqual({
       email: userFixture.email,
-      password: "",
       name: userFixture.name,
       role: userFixture.role,
       is_active: userFixture.is_active,
@@ -26,7 +25,6 @@ describe("buildUserUpdatePayload", () => {
       buildUserUpdatePayload(
         {
           email: "other@example.com",
-          password: "password123",
           name: "Other",
           role: "admin",
           is_active: false,
@@ -35,22 +33,9 @@ describe("buildUserUpdatePayload", () => {
       ),
     ).toEqual({
       email: "other@example.com",
-      password: "password123",
       name: "Other",
       role: "admin",
       is_active: false,
     });
-  });
-
-  it("omits an empty password", () => {
-    expect(
-      buildUserUpdatePayload(
-        {
-          ...toUserEditFormValues(userFixture),
-          name: "Updated",
-        },
-        userFixture,
-      ),
-    ).toEqual({ name: "Updated" });
   });
 });

@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { LOGIN_PASSWORD_MAX_LENGTH } from "@/features/auth/schemas/login.schema";
 import {
-  LOGIN_PASSWORD_MAX_LENGTH,
-  LOGIN_PASSWORD_MIN_LENGTH,
-} from "@/features/auth/schemas/login.schema";
-import {
+  USER_PASSWORD_MIN_LENGTH,
   toUserCreatePayload,
+  userChangePasswordFormSchema,
   userCreateFormSchema,
   userEditFormSchema,
 } from "./user.schema";
@@ -53,7 +52,7 @@ describe("userCreateFormSchema", () => {
   it("rejects a short password", () => {
     const result = userCreateFormSchema.safeParse({
       ...validCreateValues,
-      password: "a".repeat(LOGIN_PASSWORD_MIN_LENGTH - 1),
+      password: "a".repeat(USER_PASSWORD_MIN_LENGTH - 1),
     });
 
     expect(result.success).toBe(false);
@@ -120,22 +119,9 @@ describe("toUserCreatePayload", () => {
 });
 
 describe("userEditFormSchema", () => {
-  it("allows an empty password", () => {
-    const result = userEditFormSchema.safeParse({
-      email: "user@example.com",
-      password: "",
-      name: "Name",
-      role: "user",
-      is_active: true,
-    });
-
-    expect(result.success).toBe(true);
-  });
-
   it("trims email and name", () => {
     const result = userEditFormSchema.safeParse({
       email: "  user@example.com  ",
-      password: "",
       name: "  Name  ",
       role: "admin",
       is_active: false,
@@ -151,7 +137,6 @@ describe("userEditFormSchema", () => {
   it("rejects invalid email", () => {
     const result = userEditFormSchema.safeParse({
       email: "not-an-email",
-      password: "",
       name: "Name",
       role: "user",
       is_active: true,
@@ -162,14 +147,31 @@ describe("userEditFormSchema", () => {
       expect(result.error.issues[0]?.path).toEqual(["email"]);
     }
   });
+});
 
-  it("rejects a short non-empty password", () => {
-    const result = userEditFormSchema.safeParse({
-      email: "user@example.com",
-      password: "a".repeat(LOGIN_PASSWORD_MIN_LENGTH - 1),
-      name: "Name",
-      role: "user",
-      is_active: true,
+describe("userChangePasswordFormSchema", () => {
+  it("accepts a valid password", () => {
+    const result = userChangePasswordFormSchema.safeParse({
+      password: "password123",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an empty password", () => {
+    const result = userChangePasswordFormSchema.safeParse({
+      password: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0]?.path).toEqual(["password"]);
+    }
+  });
+
+  it("rejects a short password", () => {
+    const result = userChangePasswordFormSchema.safeParse({
+      password: "a".repeat(USER_PASSWORD_MIN_LENGTH - 1),
     });
 
     expect(result.success).toBe(false);
@@ -179,12 +181,8 @@ describe("userEditFormSchema", () => {
   });
 
   it("rejects a password longer than 128 characters", () => {
-    const result = userEditFormSchema.safeParse({
-      email: "user@example.com",
+    const result = userChangePasswordFormSchema.safeParse({
       password: "a".repeat(LOGIN_PASSWORD_MAX_LENGTH + 1),
-      name: "Name",
-      role: "user",
-      is_active: true,
     });
 
     expect(result.success).toBe(false);

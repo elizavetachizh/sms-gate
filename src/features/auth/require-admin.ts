@@ -1,19 +1,22 @@
+import type { QueryClient } from "@tanstack/react-query";
 import { redirect } from "@tanstack/react-router";
-import { isUnauthorizedError, meApi } from "@/shared/api";
 import { defaultMailingsSearch } from "@/features/mailings/search";
+import {
+  ensureCurrentUser,
+  throwUnauthorizedRedirect,
+} from "./session-guards";
 import { isAdmin } from "./is-admin";
-import { defaultLoginSearch } from "./search";
 
-export async function requireAdmin(): Promise<void> {
+export async function requireAdmin(
+  queryClient: QueryClient,
+  location: { href: string },
+): Promise<void> {
   let me;
 
   try {
-    me = await meApi.get();
+    me = await ensureCurrentUser(queryClient);
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      throw redirect({ to: "/login", search: defaultLoginSearch });
-    }
-    throw error;
+    throwUnauthorizedRedirect(queryClient, error, location.href);
   }
 
   if (!isAdmin(me)) {

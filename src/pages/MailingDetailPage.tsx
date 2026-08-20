@@ -10,10 +10,12 @@ import {
 } from "lucide-react";
 import { EditableMailingMessagesTable } from "@/features/mailings/components/EditableMailingMessagesTable";
 import { MailingProviderField } from "@/features/mailings/components/MailingProviderField";
-import { useMailingProvider } from "@/features/mailings/hooks/useMailingProvider";
+import { MailingSendOnField } from "@/features/mailings/components/MailingSendOnField";
 import { MailingStatusBadge } from "@/features/mailings/components/MailingStatusBadge";
 import { useDeleteMailing } from "@/features/mailings/hooks/useDeleteMailing";
 import { useMailingDetail } from "@/features/mailings/hooks/useMailingDetail";
+import { useMailingProvider } from "@/features/mailings/hooks/useMailingProvider";
+import { useMailingSendOn } from "@/features/mailings/hooks/useMailingSendOn";
 import { useSendMailing } from "@/features/mailings/hooks/useSendMailing";
 import { hasPendingMessages } from "@/features/mailings/lib/message-status";
 import { defaultMailingsSearch } from "@/features/mailings/search";
@@ -40,6 +42,7 @@ export function MailingDetailPage() {
   });
   const navigate = useNavigate();
   const [isCreateMessageOpen, setIsCreateMessageOpen] = useState(false);
+  const [isSendMailingOpen, setIsSendMailingOpen] = useState(false);
   const [isDeleteMailingOpen, setIsDeleteMailingOpen] = useState(false);
   const { actionAlert, setActionAlert } = useActionAlert();
   const {
@@ -56,6 +59,12 @@ export function MailingDetailPage() {
     mailingId,
     mailing?.provider_code ?? "",
   );
+  const sendOnState = useMailingSendOn(
+    mailingId,
+    providerState.savedProviderCode,
+    mailing?.name ?? "",
+    mailing?.send_on ?? null,
+  );
 
   const isPolling =
     Boolean(mailing) &&
@@ -63,12 +72,14 @@ export function MailingDetailPage() {
     hasPendingMessages(mailing!.messages);
 
   const canSend = mailing?.status === "created";
+  const hasMessages = Boolean(mailing?.messages.length);
 
-  async function handleSend() {
+  async function confirmSendMailing() {
     try {
       await sendMailing.mutateAsync();
+      setIsSendMailingOpen(false);
     } catch {
-      // error shown via sendMailing.isError
+      setIsSendMailingOpen(false);
     }
   }
 
@@ -149,7 +160,7 @@ export function MailingDetailPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             Рассылка{" "}
             <code className="rounded bg-muted px-1.5 py-0.5 text-base font-normal">
-              {shortId(mailing.id)}
+              {mailing.name}
             </code>
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -175,18 +186,28 @@ export function MailingDetailPage() {
           </Button>
 
           {canSend && (
-            <Button
-              size="sm"
-              disabled={sendMailing.isPending}
-              onClick={handleSend}
+            <span
+              className="inline-flex"
+              title={
+                hasMessages ? undefined : "Добавьте хотя бы одно сообщение"
+              }
             >
-              {sendMailing.isPending ? (
-                <Loader2Icon className="animate-spin" />
-              ) : (
-                <SendIcon />
-              )}
-              Отправить
-            </Button>
+              <Button
+                size="sm"
+                disabled={sendMailing.isPending || !hasMessages}
+                onClick={() => {
+                  sendMailing.reset();
+                  setIsSendMailingOpen(true);
+                }}
+              >
+                {sendMailing.isPending ? (
+                  <Loader2Icon className="animate-spin" />
+                ) : (
+                  <SendIcon />
+                )}
+                Отправить
+              </Button>
+            </span>
           )}
 
           {canSend && (
@@ -256,6 +277,28 @@ export function MailingDetailPage() {
               <dd className="font-mono text-sm">{mailing.id}</dd>
             </div>
             <div className="space-y-1 sm:col-span-2 lg:col-span-3">
+              <dt className="text-sm text-muted-foreground">
+                Дата и время отправки
+              </dt>
+              <dd>
+                <MailingSendOnField
+                  canEdit={canSend}
+                  sendOnState={sendOnState}
+                  disabled={providerState.isSaving}
+                  onUpdated={() =>
+                    setActionAlert({ action: "updated", entity: "mailing" })
+                  }
+                  onError={(message) =>
+                    setActionAlert({
+                      action: "error",
+                      entity: "mailing",
+                      message,
+                    })
+                  }
+                />
+              </dd>
+            </div>
+            <div className="space-y-1 sm:col-span-2 lg:col-span-3">
               <dt className="text-sm text-muted-foreground">Провайдер</dt>
               <dd>
                 <MailingProviderField
@@ -302,7 +345,7 @@ export function MailingDetailPage() {
             canEdit={canSend}
             embedded
             savedProviderCode={providerState.savedProviderCode}
-            isProviderBusy={providerState.isSaving}
+            isProviderBusy={providerState.isSaving || sendOnState.isSaving}
             onMessageDeleted={() =>
               setActionAlert({ action: "deleted", entity: "message" })
             }
@@ -327,6 +370,29 @@ export function MailingDetailPage() {
             message: count === 1 ? undefined : `Добавлено ${count} SMS`,
           })
         }
+      />
+
+      <ConfirmDialog
+        open={isSendMailingOpen}
+        onOpenChange={(open) => {
+          if (!sendMailing.isPending) {
+            setIsSendMailingOpen(open);
+          }
+        }}
+        title={`Отправить ${mailing.messages.length} SMS?`}
+        description={
+          <>
+            Рассылка «
+            <span className="font-medium text-foreground">{mailing.name}</span>»
+            будет поставлена в очередь через{" "}
+            {providerState.savedProvider?.name ?? mailing.provider_code}. Это
+            действие нельзя будет отменить.
+          </>
+        }
+        confirmLabel="Отправить"
+        variant="default"
+        onConfirm={confirmSendMailing}
+        isPending={sendMailing.isPending}
       />
 
       <ConfirmDialog

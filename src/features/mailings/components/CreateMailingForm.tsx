@@ -17,6 +17,7 @@ import { useProviders } from "@/features/providers/hooks/useProviders";
 import { defaultMailingsSearch } from "@/features/mailings/search";
 import { applyCreateMailingValidationErrors } from "@/features/mailings/lib/mailing-api-errors";
 import { buildMailingMessagesPayload } from "../lib/build-mailing-messages-payload";
+import { toMailingSendOnIso } from "../lib/send-on";
 import { Button } from "@/shared/ui/button";
 import {
   Card,
@@ -34,6 +35,7 @@ import {
   SelectValue,
 } from "@/shared/ui/select";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { Input } from "@/shared/ui/input";
 
 export function CreateMailingForm() {
   const navigate = useNavigate();
@@ -77,6 +79,8 @@ export function CreateMailingForm() {
     try {
       const mailing = await createMailing.mutateAsync({
         provider_code: values.provider_code,
+        name: values.name,
+        send_on: toMailingSendOnIso(values.send_on),
         messages,
       });
 
@@ -112,61 +116,108 @@ export function CreateMailingForm() {
           </CardHeader>
 
           <CardContent className="space-y-8">
-            <section className="space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="provider_code" className="text-sm font-medium">
-                  Провайдер
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Выберите оператора, через которого будут отправлены сообщения
-                </p>
+            <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Наименование рассылки
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Укажите наименование рассылки
+                  </p>
+                </div>
+                <Input
+                  id="name"
+                  placeholder="Наименование рассылки"
+                  {...form.register("name", { required: true })}
+                />
+                {errors.name?.message && (
+                  <p className="text-sm text-destructive">
+                    {errors.name.message}
+                  </p>
+                )}
               </div>
-
-              {isProvidersLoading && (
-                <Skeleton className="h-9 w-full max-w-xs" />
-              )}
-
-              {isProvidersError && (
-                <p className="text-sm text-destructive">
-                  Не удалось загрузить список провайдеров
-                </p>
-              )}
-
-              {!isProvidersLoading &&
-                !isProvidersError &&
-                providers.length > 0 && (
-                  <Select
-                    value={providerCode}
-                    onValueChange={(value) =>
-                      setValue("provider_code", value, { shouldValidate: true })
-                    }
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <Label htmlFor="send_on" className="text-sm font-medium">
+                    Назначенная дата и время отправки
+                  </Label>
+                  <p className="text-sm text-muted-foreground">Необязательно</p>
+                </div>
+                <Input
+                  id="send_on"
+                  type="datetime-local"
+                  step={60}
+                  {...form.register("send_on")}
+                />
+                {errors.send_on?.message && (
+                  <p className="text-sm text-destructive">
+                    {errors.send_on.message}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="space-y-1">
+                  <Label
+                    htmlFor="provider_code"
+                    className="text-sm font-medium"
                   >
-                    <SelectTrigger id="provider_code" className="max-w-xs">
-                      <SelectValue placeholder="Выберите провайдера" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {providers.map((provider) => (
-                        <SelectItem key={provider.code} value={provider.code}>
-                          {provider.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    Провайдер
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Выберите оператора, через которого будут отправлены
+                    сообщения
+                  </p>
+                </div>
+
+                {isProvidersLoading && (
+                  <Skeleton className="h-9 w-full max-w-xs" />
                 )}
 
-              {!isProvidersLoading &&
-                !isProvidersError &&
-                providers.length === 0 && (
-                  <p className="text-sm text-muted-foreground">
-                    Провайдеры не найдены
+                {isProvidersError && (
+                  <p className="text-sm text-destructive">
+                    Не удалось загрузить список провайдеров
                   </p>
                 )}
 
-              {errors.provider_code?.message && (
-                <p className="text-sm text-destructive">
-                  {errors.provider_code.message}
-                </p>
-              )}
+                {!isProvidersLoading &&
+                  !isProvidersError &&
+                  providers.length > 0 && (
+                    <Select
+                      value={providerCode}
+                      onValueChange={(value) =>
+                        setValue("provider_code", value, {
+                          shouldValidate: true,
+                        })
+                      }
+                    >
+                      <SelectTrigger id="provider_code" className="max-w-xs">
+                        <SelectValue placeholder="Выберите провайдера" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {providers.map((provider) => (
+                          <SelectItem key={provider.code} value={provider.code}>
+                            {provider.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                {!isProvidersLoading &&
+                  !isProvidersError &&
+                  providers.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Провайдеры не найдены
+                    </p>
+                  )}
+
+                {errors.provider_code?.message && (
+                  <p className="text-sm text-destructive">
+                    {errors.provider_code.message}
+                  </p>
+                )}
+              </div>
             </section>
 
             <div className="border-t" />

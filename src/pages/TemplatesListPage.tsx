@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getRouteApi, Link, useNavigate } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { PlusIcon } from "lucide-react";
 import { TemplatesTable } from "@/features/templates/components/TemplatesTable";
 import { useDeleteTemplate } from "@/features/templates/hooks/useDeleteTemplate";
@@ -11,13 +11,14 @@ import { Button } from "@/shared/ui/button";
 import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { Pagination } from "@/shared/ui/pagination";
 import { useActionAlert } from "@/shared/hooks/useActionAlert";
+import { usePageSearch } from "@/shared/hooks/usePageSearch";
 import { QueryErrorPanel } from "@/shared/ui/query-error-panel";
 import { QueryLoadingPanel } from "@/shared/ui/query-loading-panel";
 
 const routeApi = getRouteApi("/_authenticated/templates");
 
 export function TemplatesListPage() {
-  const navigate = useNavigate({ from: "/templates" });
+  const { updateSearch } = usePageSearch("/templates");
   const { limit, offset } = routeApi.useSearch();
   const listParams = { limit, offset };
 
@@ -27,16 +28,6 @@ export function TemplatesListPage() {
   const [templateToDelete, setTemplateToDelete] =
     useState<MailingTemplateRead | null>(null);
   const { actionAlert, setActionAlert } = useActionAlert();
-
-  function updatePagination(next: { offset?: number; limit?: number }) {
-    navigate({
-      search: (prev) => ({
-        ...prev,
-        ...next,
-        offset: next.offset ?? (next.limit !== undefined ? 0 : prev.offset),
-      }),
-    });
-  }
 
   function handleDelete(template: MailingTemplateRead) {
     setTemplateToDelete(template);
@@ -111,12 +102,8 @@ export function TemplatesListPage() {
             total={data.total}
             limit={limit}
             offset={offset}
-            onOffsetChange={(nextOffset) =>
-              updatePagination({ offset: nextOffset })
-            }
-            onLimitChange={(nextLimit) =>
-              updatePagination({ limit: nextLimit, offset: 0 })
-            }
+            onOffsetChange={(nextOffset) => updateSearch({ offset: nextOffset })}
+            onLimitChange={(nextLimit) => updateSearch({ limit: nextLimit })}
           />
         </>
       )}

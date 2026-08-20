@@ -3,7 +3,6 @@ import type { FormEvent } from "react";
 import { useProviders } from "@/features/providers/hooks/useProviders";
 import { messageStatusOrder } from "@/features/stats/lib/pivot-messages-by-provider";
 import {
-  DEFAULT_STATS_FILL_GAPS,
   STATS_MAX_PERIOD_DAYS,
   getInclusiveDaysCount,
   isStatsDateRangeValid,
@@ -35,10 +34,8 @@ interface StatsFiltersProps {
 interface StatsFiltersDraft {
   date_from: string;
   date_to: string;
-  timezone: string;
   provider_code: string[];
   status: MessageStatus[];
-  fill_gaps: boolean;
 }
 
 function paramsToDraft(
@@ -47,24 +44,23 @@ function paramsToDraft(
   return {
     date_from: params.date_from,
     date_to: params.date_to,
-    timezone: params.timezone,
     provider_code: params.provider_code ?? [],
     status: params.status ?? [],
-    fill_gaps: params.fill_gaps ?? DEFAULT_STATS_FILL_GAPS,
   };
 }
 
 function draftToParams(
   draft: StatsFiltersDraft,
+  applied: MessagesByProviderStatsParams,
 ): MessagesByProviderStatsParams {
   return {
     date_from: draft.date_from,
     date_to: draft.date_to,
-    timezone: draft.timezone.trim() || "UTC",
+    timezone: applied.timezone,
+    fill_gaps: applied.fill_gaps,
     provider_code:
       draft.provider_code.length > 0 ? draft.provider_code : undefined,
     status: draft.status.length > 0 ? draft.status : undefined,
-    fill_gaps: draft.fill_gaps,
   };
 }
 
@@ -87,10 +83,6 @@ function getValidationError(draft: StatsFiltersDraft): string | null {
     }
 
     return `Период не должен превышать ${STATS_MAX_PERIOD_DAYS} дней`;
-  }
-
-  if (!draft.timezone.trim()) {
-    return "Укажите timezone";
   }
 
   return null;
@@ -119,7 +111,7 @@ export function StatsFilters({
       return;
     }
 
-    onChange(draftToParams(draft));
+    onChange(draftToParams(draft, value));
   }
 
   return (
@@ -127,7 +119,7 @@ export function StatsFilters({
       <CardHeader>
         <CardTitle>Фильтры статистики</CardTitle>
         <CardDescription>
-          Период считается по календарным дням в выбранной timezone.
+          Период считается по календарным дням в часовом поясе браузера.
         </CardDescription>
       </CardHeader>
 

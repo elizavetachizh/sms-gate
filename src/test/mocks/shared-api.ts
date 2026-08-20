@@ -23,7 +23,6 @@ export const meApi = {
 export const usersApi = {
   list: vi.fn(),
   create: vi.fn(),
-  getById: vi.fn(),
   update: vi.fn(),
 };
 

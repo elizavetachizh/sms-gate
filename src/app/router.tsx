@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { AppLayout } from "./layout/AppLayout";
 import { Header } from "./layout/Header";
+import { queryClient } from "./query-client";
 import { RouteError, RouteNotFound } from "./route-fallbacks";
 import { LoginPage } from "../pages/LoginPage";
 import { MailingsListPage } from "../pages/MailingsListPage";
@@ -21,6 +22,11 @@ import type { MailingStatus } from "@/shared/api";
 import { getCredentials } from "@/features/auth/credentials-storage";
 import { requireAdmin } from "@/features/auth/require-admin";
 import type { LoginSearch } from "@/features/auth/search";
+import {
+  bounceIfAuthenticated,
+  ensureCurrentUser,
+  throwUnauthorizedRedirect,
+} from "@/features/auth/session-guards";
 import { defaultMailingsSearch } from "../features/mailings/search";
 import { defaultUsersSearch } from "@/features/users/search";
 import { StatsPage } from "@/pages/StatsPage";
@@ -38,23 +44,25 @@ const loginRoute = createRoute({
     redirect:
       typeof search.redirect === "string" ? search.redirect : undefined,
   }),
-  beforeLoad: () => {
-    if (getCredentials()) {
-      throw redirect({ to: "/mailings", search: defaultMailingsSearch });
-    }
-  },
+  beforeLoad: () => bounceIfAuthenticated(queryClient),
   component: LoginPage,
 });
 
 const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "/_authenticated",
-  beforeLoad: ({ location }) => {
+  beforeLoad: async ({ location }) => {
     if (!getCredentials()) {
       throw redirect({
         to: "/login",
         search: { redirect: location.href },
       });
+    }
+
+    try {
+      await ensureCurrentUser(queryClient);
+    } catch (error) {
+      throwUnauthorizedRedirect(queryClient, error, location.href);
     }
   },
   component: () => (
@@ -138,7 +146,7 @@ const usersRoute = createRoute({
     limit: Number(search.limit ?? defaultUsersSearch.limit),
     offset: Number(search.offset ?? defaultUsersSearch.offset),
   }),
-  beforeLoad: requireAdmin,
+  beforeLoad: ({ location }) => requireAdmin(queryClient, location),
   component: UsersListPage,
 });
 
