@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useMe } from "@/features/auth/hooks/useMe";
 import { isValidationError, type UserRead } from "@/shared/api";
 import {
@@ -65,14 +65,13 @@ function EditUserDialogForm({
     handleSubmit,
     control,
     setError,
-    watch,
     formState: { errors, isDirty },
   } = useForm<UserEditFormValues>({
     resolver: zodResolver(userEditFormSchema),
     defaultValues: toUserEditFormValues(user),
   });
 
-  const isActive = watch("is_active");
+  const isActive = useWatch({ control, name: "is_active" });
   const willDeactivate = user.is_active && !isActive;
 
   async function onSubmit(values: UserEditFormValues) {
